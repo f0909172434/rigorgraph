@@ -23,6 +23,12 @@ def test_help_is_localized() -> None:
         assert heading in result.output
 
 
+def test_version_is_stable_machine_readable_output() -> None:
+    result = runner.invoke(app, ["--version"])
+    assert result.exit_code == 0
+    assert result.output.strip() == "rigorgraph 0.1.0b1"
+
+
 def test_four_language_init_and_no_overwrite(tmp_path) -> None:
     expected = {
         "en": "Initialized",

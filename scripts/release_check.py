@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -12,6 +13,7 @@ from export_schemas import expected_schemas
 from validate_locales import validate as validate_locales
 
 ROOT = Path(__file__).resolve().parents[1]
+BETA_TAG = "v0.1.0-beta.1"
 
 
 def check_manifest() -> list[str]:
@@ -121,6 +123,36 @@ def check_readmes() -> list[str]:
     return errors
 
 
+def check_beta_surfaces() -> list[str]:
+    errors: list[str] = []
+    readmes = ("README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md")
+    for name in readmes:
+        content = (ROOT / name).read_text(encoding="utf-8")
+        if BETA_TAG not in content:
+            errors.append(f"{name}: missing public beta tag")
+        if "beta-feedback.yml" not in content:
+            errors.append(f"{name}: missing beta feedback link")
+
+    issue_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "beta-feedback.yml"
+    try:
+        issue_form = yaml.safe_load(issue_path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        errors.append(f"beta feedback form: {exc}")
+    else:
+        if not isinstance(issue_form, dict) or not isinstance(issue_form.get("body"), list):
+            errors.append("beta feedback form must be a GitHub issue-form mapping")
+
+    package = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    if package.get("project", {}).get("version") != "0.1.0b1":
+        errors.append("Python package version must match the beta release")
+
+    for locale in ("en", "zh-TW", "zh-CN", "ja"):
+        path = ROOT / "launch" / f"BETA_RELEASE_NOTES.{locale}.md"
+        if not path.is_file() or BETA_TAG not in path.read_text(encoding="utf-8"):
+            errors.append(f"missing or stale beta release notes: {locale}")
+    return errors
+
+
 def check_schemas() -> list[str]:
     errors: list[str] = []
     schema_dir = ROOT / "schemas"
@@ -147,6 +179,7 @@ def main() -> int:
         + check_skills()
         + check_viewer()
         + check_readmes()
+        + check_beta_surfaces()
         + check_schemas()
     )
     if errors:

@@ -8,16 +8,16 @@ RigorGraph 是本地优先的 CLI、离线报告、GitHub Action 与技能包，
 
 > RigorGraph 检查工作流程完整性与可追溯性。`VERIFIED` 只表示已被记录的工作流程接受，不代表绝对真理、形式认证、同行评审或专家共识。
 
+> **公开 Beta：**我们正在寻找前 5 位外部用户。请运行 demo、记录打开报告所需时间，并通过 [Beta 反馈表](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) 告诉我们第一个令人困惑的步骤。请勿提交私人研究数据。
+
 ![RigorGraph 命题—证据流程](assets/rigorgraph-flow.svg)
 
 ## 快速开始
 
-需要 Python 3.11 或更高版本，不需要 API 密钥。目前仍是私有发布候选版，请从源代码安装；只有在获准发布到 PyPI 后，`pip install rigorgraph` 才会可用。
+需要 Python 3.11 或更高版本，不需要 API 密钥。公开 Beta 期间请安装已标记的源代码版本；只有在获准发布到 PyPI 后，`pip install rigorgraph` 才会可用。
 
 ```bash
-git clone https://github.com/f0909172434/rigorgraph.git
-cd rigorgraph
-python -m pip install .
+python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
 rigorgraph --lang zh-CN demo --scenario math --open
 ```
 

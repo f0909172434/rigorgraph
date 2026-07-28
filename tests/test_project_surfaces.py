@@ -14,6 +14,8 @@ def test_readmes_link_all_languages_and_quickstart() -> None:
         content = (ROOT / name).read_text(encoding="utf-8")
         assert all(link in content for link in names)
         assert "rigorgraph" in content.lower()
+        assert "v0.1.0-beta.1" in content
+        assert "beta-feedback.yml" in content
 
 
 def test_plugin_manifest_is_skills_only() -> None:
@@ -28,6 +30,17 @@ def test_action_manifest_is_valid_composite_yaml() -> None:
     assert isinstance(manifest, dict)
     assert manifest["runs"]["using"] == "composite"
     assert manifest["runs"]["steps"]
+
+
+def test_beta_feedback_form_and_release_notes() -> None:
+    issue_form = yaml.safe_load(
+        (ROOT / ".github" / "ISSUE_TEMPLATE" / "beta-feedback.yml").read_text(encoding="utf-8")
+    )
+    assert issue_form["labels"] == ["beta-feedback"]
+    assert len(issue_form["body"]) >= 5
+    for locale in ("en", "zh-TW", "zh-CN", "ja"):
+        content = (ROOT / "launch" / f"BETA_RELEASE_NOTES.{locale}.md").read_text(encoding="utf-8")
+        assert "v0.1.0-beta.1" in content
 
 
 def test_skills_are_concise_localized_and_have_no_placeholders() -> None:

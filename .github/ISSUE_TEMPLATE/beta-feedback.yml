@@ -1,0 +1,49 @@
+name: Beta feedback / Beta 回饋 / Beta 反馈 / ベータフィードバック
+description: Share a public, reproducible first-use result without private research data.
+title: "[Beta] "
+labels: [beta-feedback]
+body:
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language / 語言 / 语言 / 言語
+      options: [English, 繁體中文, 简体中文, 日本語]
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Did you open the offline report? / 是否成功開啟離線報告？ / 是否成功打开离线报告？ / オフラインレポートを開けましたか？
+      options:
+        - Yes, within five minutes
+        - Yes, after more than five minutes
+        - No
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Python version / 作業系統與 Python 版本 / 操作系统与 Python 版本 / OS と Python バージョン
+      placeholder: Windows 11, Python 3.13
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: First confusing or failing step / 第一個困惑或失敗的步驟 / 第一个困惑或失败的步骤 / 最初に分かりにくかった、または失敗した手順
+      description: Include the stable error code if one appeared. Remove credentials and private content.
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What would you use RigorGraph for? / 你會用它做什麼？ / 你会用它做什么？ / 何に使いたいですか？
+    validations:
+      required: true
+  - type: checkboxes
+    id: public_data
+    attributes:
+      label: Public-data confirmation
+      options:
+        - label: I removed credentials, private research, personal data, and confidential source material.
+          required: true
