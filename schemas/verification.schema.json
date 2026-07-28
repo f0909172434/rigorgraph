@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "ClaimStatus": {
+      "enum": [
+        "DRAFT",
+        "PROPOSED",
+        "UNDER_REVIEW",
+        "VERIFIED",
+        "REJECTED",
+        "UNCERTAIN",
+        "REVOKED",
+        "SUPERSEDED"
+      ],
+      "title": "ClaimStatus",
+      "type": "string"
+    },
+    "VerificationOutcome": {
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "UNCERTAIN"
+      ],
+      "title": "VerificationOutcome",
+      "type": "string"
+    }
+  },
+  "$id": "https://github.com/f0909172434/rigorgraph/schemas/verification.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "checked_evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Checked Evidence Ids",
+      "type": "array"
+    },
+    "claim_id": {
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "outcome": {
+      "$ref": "#/$defs/VerificationOutcome"
+    },
+    "previous_status": {
+      "$ref": "#/$defs/ClaimStatus"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "resulting_status": {
+      "$ref": "#/$defs/ClaimStatus"
+    },
+    "snapshot_sha256": {
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "verifier": {
+      "minLength": 1,
+      "title": "Verifier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "claim_id",
+    "verifier",
+    "outcome",
+    "rationale",
+    "previous_status",
+    "resulting_status",
+    "snapshot_sha256"
+  ],
+  "title": "Verification",
+  "type": "object"
+}

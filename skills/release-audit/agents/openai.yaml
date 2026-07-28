@@ -1,0 +1,4 @@
+interface:
+  display_name: "Release Audit"
+  short_description: "Audit a RigorGraph research release"
+  default_prompt: "Use $release-audit to audit this RigorGraph project before release."

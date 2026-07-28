@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Intake"
+  short_description: "Structure a research question safely"
+  default_prompt: "Use $research-intake to formalize my research question without overstating evidence."

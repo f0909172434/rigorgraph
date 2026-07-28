@@ -1,0 +1,39 @@
+{
+  "$id": "https://github.com/f0909172434/rigorgraph/schemas/project-config.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "fail_on": {
+      "default": "error",
+      "title": "Fail On",
+      "type": "string"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "const": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "version",
+    "name"
+  ],
+  "title": "ProjectConfig",
+  "type": "object"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adversarial Verify"
+  short_description: "Challenge and verify research claims"
+  default_prompt: "Use $adversarial-verify to independently test this claim and record the outcome."

@@ -1,0 +1,37 @@
+name: Bug report
+description: Report reproducible incorrect behavior without private research data.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options: [CLI, Audit, Report, Skill, GitHub Action, Translation, Packaging]
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and exact error code
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and RigorGraph/Python version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Remove credentials and private research content.
+    validations:
+      required: true

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Capture Claim"
+  short_description: "Record claims and supporting evidence"
+  default_prompt: "Use $capture-claim to record this claim and its evidence in RigorGraph."

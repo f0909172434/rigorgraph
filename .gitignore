@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+.pytest_cache/
+.ruff_cache/
+.venv/
+dist/
+build/
+frontend/node_modules/
+frontend/dist/
+rigorgraph-report.html
+rigorgraph-demo/
+.DS_Store
+

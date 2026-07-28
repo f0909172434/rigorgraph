@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "EvidenceType": {
+      "enum": [
+        "proof",
+        "source",
+        "dataset",
+        "computation",
+        "benchmark_run",
+        "human_review"
+      ],
+      "title": "EvidenceType",
+      "type": "string"
+    }
+  },
+  "$id": "https://github.com/f0909172434/rigorgraph/schemas/evidence.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "locator": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Locator"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Path"
+    },
+    "producer": {
+      "minLength": 1,
+      "title": "Producer",
+      "type": "string"
+    },
+    "scope": {
+      "minLength": 1,
+      "title": "Scope",
+      "type": "string"
+    },
+    "sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sha256"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "type": {
+      "$ref": "#/$defs/EvidenceType"
+    },
+    "uri": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Uri"
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "title",
+    "producer",
+    "scope"
+  ],
+  "title": "Evidence",
+  "type": "object"
+}

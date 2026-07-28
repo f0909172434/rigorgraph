@@ -1,0 +1,30 @@
+name: Feature proposal
+description: Propose a scoped capability with evidence and verification impact.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Proposed workflow
+    validations:
+      required: true
+  - type: textarea
+    id: integrity
+    attributes:
+      label: Evidence and verification impact
+      description: Explain how the proposal avoids overstating claims.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance tests
+    validations:
+      required: true

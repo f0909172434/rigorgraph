@@ -1,0 +1,173 @@
+from __future__ import annotations
+
+import re
+from datetime import UTC, datetime
+from enum import StrEnum
+from pathlib import Path
+from typing import Any, Literal
+from urllib.parse import urlparse
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+def utc_now() -> datetime:
+    return datetime.now(UTC)
+
+
+class StrictModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+
+class ClaimType(StrEnum):
+    FORMAL = "formal"
+    LITERATURE = "literature"
+    EMPIRICAL = "empirical"
+    BENCHMARK = "benchmark"
+    SYNTHESIS = "synthesis"
+
+
+class EvidenceType(StrEnum):
+    PROOF = "proof"
+    SOURCE = "source"
+    DATASET = "dataset"
+    COMPUTATION = "computation"
+    BENCHMARK_RUN = "benchmark_run"
+    HUMAN_REVIEW = "human_review"
+
+
+class ClaimStatus(StrEnum):
+    DRAFT = "DRAFT"
+    PROPOSED = "PROPOSED"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    VERIFIED = "VERIFIED"
+    REJECTED = "REJECTED"
+    UNCERTAIN = "UNCERTAIN"
+    REVOKED = "REVOKED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class VerificationOutcome(StrEnum):
+    ACCEPT = "ACCEPT"
+    REJECT = "REJECT"
+    UNCERTAIN = "UNCERTAIN"
+
+
+class ProjectConfig(StrictModel):
+    version: Literal[1]
+    name: str = Field(min_length=1)
+    language: str | None = None
+    fail_on: str = "error"
+
+    @field_validator("fail_on")
+    @classmethod
+    def validate_fail_on(cls, value: str) -> str:
+        if value not in {"error", "warning", "never"}:
+            raise ValueError("fail_on must be error, warning, or never")
+        return value
+
+
+class Claim(StrictModel):
+    id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$")
+    statement: str = Field(min_length=1)
+    type: ClaimType
+    status: ClaimStatus = ClaimStatus.DRAFT
+    authors: list[str] = Field(min_length=1)
+    dependencies: list[str] = Field(default_factory=list)
+    evidence_ids: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+    supersedes: str | None = None
+
+    @field_validator("authors", "dependencies", "evidence_ids")
+    @classmethod
+    def unique_values(cls, values: list[str]) -> list[str]:
+        if len(values) != len(set(values)):
+            raise ValueError("values must be unique")
+        return values
+
+
+class Evidence(StrictModel):
+    id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$")
+    type: EvidenceType
+    title: str = Field(min_length=1)
+    producer: str = Field(min_length=1)
+    path: str | None = None
+    uri: str | None = None
+    locator: str | None = None
+    scope: str = Field(min_length=1)
+    sha256: str | None = Field(default=None, pattern=r"^[a-fA-F0-9]{64}$")
+    created_at: datetime = Field(default_factory=utc_now)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_location(self) -> Evidence:
+        if bool(self.path) == bool(self.uri):
+            raise ValueError("exactly one of path or uri is required")
+        if self.path and not self.sha256:
+            raise ValueError("local evidence requires sha256")
+        if self.uri and not self.locator:
+            raise ValueError("remote evidence requires an exact locator")
+        return self
+
+    @field_validator("uri")
+    @classmethod
+    def validate_uri(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if value.startswith("doi:"):
+            if not re.fullmatch(r"doi:10\.\d{4,9}/\S+", value, re.IGNORECASE):
+                raise ValueError("doi URI must contain a valid DOI")
+            return value
+        parsed = urlparse(value)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ValueError("uri must be an absolute http, https, or doi URI")
+        return value
+
+
+class Verification(StrictModel):
+    id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$")
+    claim_id: str
+    verifier: str = Field(min_length=1)
+    outcome: VerificationOutcome
+    rationale: str = Field(min_length=1)
+    checked_evidence_ids: list[str] = Field(default_factory=list)
+    previous_status: ClaimStatus
+    resulting_status: ClaimStatus
+    snapshot_sha256: str = Field(pattern=r"^[a-fA-F0-9]{64}$")
+    created_at: datetime = Field(default_factory=utc_now)
+
+
+class VerificationRequest(StrictModel):
+    id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$")
+    verifier: str = Field(min_length=1)
+    outcome: VerificationOutcome
+    rationale: str = Field(min_length=1)
+    checked_evidence_ids: list[str] = Field(default_factory=list)
+
+
+class AuditIssue(StrictModel):
+    code: str
+    severity: str
+    message_id: str
+    subject_id: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class AuditResult(StrictModel):
+    status: str
+    errors: int
+    warnings: int
+    claims: int
+    evidence: int
+    verifications: int
+    issues: list[AuditIssue]
+
+
+class ProjectData(StrictModel):
+    root: Path
+    config: ProjectConfig
+    claims: list[Claim]
+    evidence: list[Evidence]
+    verifications: list[Verification]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

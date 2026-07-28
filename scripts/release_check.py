@@ -1,0 +1,149 @@
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import yaml
+from export_schemas import expected_schemas
+from validate_locales import validate as validate_locales
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def check_manifest() -> list[str]:
+    errors: list[str] = []
+    path = ROOT / ".codex-plugin" / "plugin.json"
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"plugin manifest: {exc}"]
+    required = ("name", "version", "description", "author", "skills", "interface")
+    for key in required:
+        if key not in manifest:
+            errors.append(f"plugin manifest missing {key}")
+    if manifest.get("name") != "rigorgraph":
+        errors.append("plugin name must be rigorgraph")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", str(manifest.get("version", ""))):
+        errors.append("plugin version must use strict semver")
+    for forbidden in ("mcpServers", "apps", "hooks"):
+        if forbidden in manifest:
+            errors.append(f"plugin must not declare unused {forbidden}")
+    return errors
+
+
+def check_skills() -> list[str]:
+    errors: list[str] = []
+    expected = {"research-intake", "capture-claim", "adversarial-verify", "release-audit"}
+    found = {path.parent.name for path in (ROOT / "skills").glob("*/SKILL.md")}
+    if found != expected:
+        errors.append(f"skill set {sorted(found)} != {sorted(expected)}")
+    for name in sorted(found):
+        skill_path = ROOT / "skills" / name / "SKILL.md"
+        content = skill_path.read_text(encoding="utf-8")
+        if "TODO" in content or "[TODO" in content:
+            errors.append(f"{name}: TODO placeholder remains")
+        match = re.match(r"---\n(.*?)\n---", content, re.DOTALL)
+        if not match:
+            errors.append(f"{name}: invalid frontmatter")
+            continue
+        metadata = yaml.safe_load(match.group(1))
+        if set(metadata) != {"name", "description"} or metadata.get("name") != name:
+            errors.append(f"{name}: frontmatter must contain matching name and description only")
+        for language in ("Traditional Chinese", "Simplified Chinese", "Japanese"):
+            if language not in content:
+                errors.append(f"{name}: missing {language} output rule")
+        agent_path = skill_path.parent / "agents" / "openai.yaml"
+        try:
+            agent = yaml.safe_load(agent_path.read_text(encoding="utf-8"))
+            prompt = agent["interface"]["default_prompt"]
+        except (OSError, KeyError, TypeError, yaml.YAMLError) as exc:
+            errors.append(f"{name}: invalid agents/openai.yaml: {exc}")
+            continue
+        if f"${name}" not in prompt:
+            errors.append(f"{name}: default_prompt must mention ${name}")
+    return errors
+
+
+def check_viewer() -> list[str]:
+    path = ROOT / "src" / "rigorgraph" / "viewer" / "index.html"
+    if not path.is_file():
+        return ["viewer/index.html is missing"]
+    content = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    if content.count("__RIGORGRAPH_DATA__") != 1:
+        errors.append("viewer must contain exactly one report data marker")
+    if re.search(r"<(script|link)[^>]+(src|href)=[\"']https?://", content, re.IGNORECASE):
+        errors.append("viewer contains a runtime network dependency")
+    if len(content) < 100_000:
+        errors.append("viewer does not appear to contain the bundled application")
+    return errors
+
+
+def check_readmes() -> list[str]:
+    errors: list[str] = []
+    readmes = ("README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md")
+    for name in readmes:
+        content = (ROOT / name).read_text(encoding="utf-8")
+        for link in readmes:
+            if link not in content:
+                errors.append(f"{name}: missing language link {link}")
+        if (
+            "Quick start" not in content
+            and "快速開始" not in content
+            and "快速开始" not in content
+            and "クイックスタート" not in content
+        ):
+            errors.append(f"{name}: missing localized quick start")
+    return errors
+
+
+def check_schemas() -> list[str]:
+    errors: list[str] = []
+    schema_dir = ROOT / "schemas"
+    for name, expected in expected_schemas().items():
+        path = schema_dir / name
+        if not path.is_file() or path.read_text(encoding="utf-8") != expected:
+            errors.append(f"generated schema is stale: {name}")
+    return errors
+
+
+def run(command: list[str], cwd: Path = ROOT) -> int:
+    print("RUN", " ".join(command))
+    return subprocess.run(command, cwd=cwd, check=False).returncode
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--full", action="store_true")
+    args = parser.parse_args()
+    errors = (
+        validate_locales()
+        + check_manifest()
+        + check_skills()
+        + check_viewer()
+        + check_readmes()
+        + check_schemas()
+    )
+    if errors:
+        for error in errors:
+            print("RELEASE_ERROR", error)
+        return 1
+    if args.full:
+        commands = [
+            [sys.executable, "-m", "pytest"],
+            [sys.executable, "-m", "ruff", "check", "."],
+            [sys.executable, "-m", "build"],
+        ]
+        for command in commands:
+            if run(command):
+                return 1
+    print("RELEASE_CHECK_PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

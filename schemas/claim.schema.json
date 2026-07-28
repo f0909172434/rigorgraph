@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "ClaimStatus": {
+      "enum": [
+        "DRAFT",
+        "PROPOSED",
+        "UNDER_REVIEW",
+        "VERIFIED",
+        "REJECTED",
+        "UNCERTAIN",
+        "REVOKED",
+        "SUPERSEDED"
+      ],
+      "title": "ClaimStatus",
+      "type": "string"
+    },
+    "ClaimType": {
+      "enum": [
+        "formal",
+        "literature",
+        "empirical",
+        "benchmark",
+        "synthesis"
+      ],
+      "title": "ClaimType",
+      "type": "string"
+    }
+  },
+  "$id": "https://github.com/f0909172434/rigorgraph/schemas/claim.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "authors": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Authors",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "dependencies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,127}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "statement": {
+      "minLength": 1,
+      "title": "Statement",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ClaimStatus",
+      "default": "DRAFT"
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes"
+    },
+    "type": {
+      "$ref": "#/$defs/ClaimType"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "statement",
+    "type",
+    "authors"
+  ],
+  "title": "Claim",
+  "type": "object"
+}
