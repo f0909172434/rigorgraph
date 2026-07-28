@@ -4,4 +4,4 @@ RigorGraph is now in public beta. It turns AI-assisted research into local, audi
 
 This beta includes the Python CLI, four installable agent skills, Codex plugin metadata, a GitHub Action, deterministic audits, math and benchmark demos, and a self-contained offline report in English, Traditional Chinese, Simplified Chinese, and Japanese.
 
-RigorGraph checks workflow integrity and traceability; it does not decide whether a research claim is absolutely true. We are looking for the first five external users. Please run the five-minute demo and submit public, non-sensitive feedback through the beta feedback issue form.
+RigorGraph checks workflow integrity and traceability; it does not decide whether a research claim is absolutely true. Releases proceed when deterministic quality gates pass, without a fixed external-user quota. Please run the five-minute demo and submit public, non-sensitive feedback through the beta feedback issue form.

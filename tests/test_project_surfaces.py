@@ -43,6 +43,23 @@ def test_beta_feedback_form_and_release_notes() -> None:
         assert "v0.1.0-beta.1" in content
 
 
+def test_beta_policy_does_not_require_a_fixed_external_tester_panel() -> None:
+    policy = (ROOT / "docs" / "BETA_POLICY.md").read_text(encoding="utf-8")
+    assert "External use is evidence, not permission" in policy
+
+    fixed_tester_phrases = ("first five external", "前 5 位外部", "外部ユーザー 5 名")
+    surfaces = [
+        ROOT / "README.md",
+        ROOT / "README.zh-TW.md",
+        ROOT / "README.zh-CN.md",
+        ROOT / "README.ja.md",
+        *(ROOT / "launch").glob("BETA_RELEASE_NOTES.*.md"),
+    ]
+    for path in surfaces:
+        content = path.read_text(encoding="utf-8")
+        assert not any(phrase in content for phrase in fixed_tester_phrases), path
+
+
 def test_skills_are_concise_localized_and_have_no_placeholders() -> None:
     for path in (ROOT / "skills").glob("*/SKILL.md"):
         content = path.read_text(encoding="utf-8")
