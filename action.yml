@@ -40,7 +40,7 @@ runs:
         --report "${{ inputs.report }}"
     - name: Upload offline report
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: rigorgraph-report
         path: ${{ steps.audit.outputs.report }}
