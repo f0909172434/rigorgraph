@@ -12,10 +12,12 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 
 ## Quick start
 
-RigorGraph requires Python 3.11 or newer. It does not require an API key.
+RigorGraph requires Python 3.11 or newer. It does not require an API key. The repository is currently a private release candidate, so install from source; `pip install rigorgraph` will become available only after the approved PyPI release.
 
 ```bash
-python -m pip install rigorgraph
+git clone https://github.com/f0909172434/rigorgraph.git
+cd rigorgraph
+python -m pip install .
 rigorgraph demo --scenario math --open
 ```
 
@@ -90,17 +92,17 @@ It also ships a native `.codex-plugin/plugin.json`. In Codex, ask `$skill-instal
 
 ```yaml
 steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-python@v5
+  - uses: actions/checkout@v6
+  - uses: actions/setup-python@v6
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@v1
+  - uses: f0909172434/rigorgraph@main # private RC; pin a commit in shared workflows
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default.
+The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The public documentation will switch to `@v1` only after the v1 tag exists.
 
 ## Develop from source
 

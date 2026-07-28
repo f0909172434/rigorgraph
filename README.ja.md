@@ -12,10 +12,12 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 
 ## クイックスタート
 
-Python 3.11 以降が必要です。API キーは不要です。
+Python 3.11 以降が必要です。API キーは不要です。現在は非公開のリリース候補版なので、ソースからインストールしてください。`pip install rigorgraph` は、PyPI への公開が承認された後に利用可能になります。
 
 ```bash
-python -m pip install rigorgraph
+git clone https://github.com/f0909172434/rigorgraph.git
+cd rigorgraph
+python -m pip install .
 rigorgraph --lang ja demo --scenario math --open
 ```
 
