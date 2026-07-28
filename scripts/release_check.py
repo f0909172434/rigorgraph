@@ -35,6 +35,26 @@ def check_manifest() -> list[str]:
     return errors
 
 
+def check_action_manifest() -> list[str]:
+    path = ROOT / "action.yml"
+    try:
+        manifest = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        return [f"action manifest: {exc}"]
+    if not isinstance(manifest, dict):
+        return ["action manifest root must be a mapping"]
+    errors: list[str] = []
+    for key in ("name", "description", "inputs", "outputs", "runs"):
+        if key not in manifest:
+            errors.append(f"action manifest missing {key}")
+    runs = manifest.get("runs")
+    if not isinstance(runs, dict) or runs.get("using") != "composite":
+        errors.append("action manifest must declare composite runs")
+    elif not isinstance(runs.get("steps"), list) or not runs["steps"]:
+        errors.append("action manifest must declare at least one step")
+    return errors
+
+
 def check_skills() -> list[str]:
     errors: list[str] = []
     expected = {"research-intake", "capture-claim", "adversarial-verify", "release-audit"}
@@ -123,6 +143,7 @@ def main() -> int:
     errors = (
         validate_locales()
         + check_manifest()
+        + check_action_manifest()
         + check_skills()
         + check_viewer()
         + check_readmes()

@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).parents[1]
 
 
@@ -19,6 +21,13 @@ def test_plugin_manifest_is_skills_only() -> None:
     assert manifest["name"] == "rigorgraph"
     assert manifest["skills"] == "./skills/"
     assert not {"mcpServers", "apps", "hooks"}.intersection(manifest)
+
+
+def test_action_manifest_is_valid_composite_yaml() -> None:
+    manifest = yaml.safe_load((ROOT / "action.yml").read_text(encoding="utf-8"))
+    assert isinstance(manifest, dict)
+    assert manifest["runs"]["using"] == "composite"
+    assert manifest["runs"]["steps"]
 
 
 def test_skills_are_concise_localized_and_have_no_placeholders() -> None:

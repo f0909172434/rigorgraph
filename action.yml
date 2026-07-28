@@ -10,7 +10,7 @@ inputs:
     required: false
     default: .
   fail-on:
-    description: Failure threshold: error, warning, or never.
+    description: "Failure threshold: error, warning, or never."
     required: false
     default: error
   report:
