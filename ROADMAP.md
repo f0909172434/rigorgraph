@@ -1,15 +1,17 @@
 # Roadmap
 
-## v0.1 — private release candidate
+## v0.1 — public beta
 
 - Deterministic claim, evidence, verification, dependency, and hash audit
 - Four-language CLI, help, skills, documentation, and offline report
 - Math, benchmark, and invalid-promotion demos
 - GitHub Action and cross-platform CI
+- Recruit the first five external successful-use cases
+- Fix positioning, installation, and onboarding before expanding scope
 
 ## v1.0 — public launch
 
-- Five independent fresh-install tests
+- Five independent external fresh-install tests
 - Public PyPI package and signed GitHub release
 - Public Codex/plugin distribution path
 - GitHub profile, demo media, and launch posts

@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.table import Table
 from typer.core import TyperCommand, TyperGroup
 
+from rigorgraph import __version__
 from rigorgraph.audit import OUTCOME_STATUS, audit_project, should_fail
 from rigorgraph.demo import create_demo
 from rigorgraph.i18n import LanguageChoice, Translator, resolve_language
@@ -66,6 +67,12 @@ def _capture_language(ctx: typer.Context, value: str | None) -> str | None:
     return value
 
 
+def _show_version(value: bool) -> None:
+    if value:
+        typer.echo(f"rigorgraph {__version__}")
+        raise typer.Exit()
+
+
 app = typer.Typer(
     name="rigorgraph",
     help="Turn AI research into auditable claim-evidence graphs.",
@@ -96,6 +103,15 @@ def main(
             is_eager=True,
         ),
     ] = None,
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version",
+            help="Show the installed RigorGraph version.",
+            callback=_show_version,
+            is_eager=True,
+        ),
+    ] = False,
 ) -> None:
     """Use --lang before a subcommand to override the configured or system language."""
     ctx.ensure_object(dict)

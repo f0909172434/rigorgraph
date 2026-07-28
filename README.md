@@ -8,16 +8,16 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 
 > RigorGraph checks workflow integrity and traceability. `VERIFIED` means accepted by the recorded workflow; it does not mean absolute truth, formal certification, peer review, or expert consensus.
 
+> **Public beta:** We are looking for the first five external users. Run the demo, time how long it takes to open the report, and share the first confusing step through the [beta feedback form](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml). Do not include private research data.
+
 ![RigorGraph claim-evidence flow](assets/rigorgraph-flow.svg)
 
 ## Quick start
 
-RigorGraph requires Python 3.11 or newer. It does not require an API key. The repository is currently a private release candidate, so install from source; `pip install rigorgraph` will become available only after the approved PyPI release.
+RigorGraph requires Python 3.11 or newer. It does not require an API key. During the public beta, install the tagged source release; `pip install rigorgraph` will become available only after the approved PyPI release.
 
 ```bash
-git clone https://github.com/f0909172434/rigorgraph.git
-cd rigorgraph
-python -m pip install .
+python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
 rigorgraph demo --scenario math --open
 ```
 
@@ -96,13 +96,13 @@ steps:
   - uses: actions/setup-python@v6
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@main # private RC; pin a commit in shared workflows
+  - uses: f0909172434/rigorgraph@v0.1.0-beta.1
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The public documentation will switch to `@v1` only after the v1 tag exists.
+The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The documentation will switch to `@v1` only after the stable v1 tag exists.
 
 ## Develop from source
 

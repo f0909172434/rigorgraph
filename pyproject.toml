@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rigorgraph"
-version = "0.1.0"
+version = "0.1.0b1"
 description = "Turn AI research into auditable claim-evidence graphs."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -64,4 +64,3 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-

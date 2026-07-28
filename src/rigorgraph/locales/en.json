@@ -93,7 +93,7 @@
   "evidence_type.human_review": "Human review",
   "severity.error": "Error",
   "severity.warning": "Warning",
-  "help.root": "Usage: rigorgraph [--lang LANGUAGE] COMMAND\n\nCommands:\n  init       Initialize a project without overwriting files\n  claim      Add research claims\n  evidence   Add scoped evidence\n  verify     Record independent verification\n  audit      Check graph and evidence integrity\n  report     Generate an offline four-language report\n  demo       Create a math, benchmark, or invalid demo\n\nLanguages: en, zh-TW, zh-CN, ja",
+  "help.root": "Usage: rigorgraph [--lang LANGUAGE] [--version] COMMAND\n\nOptions:\n  --version  Show the installed version\n\nCommands:\n  init       Initialize a project without overwriting files\n  claim      Add research claims\n  evidence   Add scoped evidence\n  verify     Record independent verification\n  audit      Check graph and evidence integrity\n  report     Generate an offline four-language report\n  demo       Create a math, benchmark, or invalid demo\n\nLanguages: en, zh-TW, zh-CN, ja",
   "help.init": "Usage: rigorgraph [--lang LANGUAGE] init [PATH] [--name NAME]\n\nInitialize rigorgraph.yaml and empty state files without overwriting existing content.",
   "help.claim": "Usage: rigorgraph [--lang LANGUAGE] claim COMMAND\n\nCommands:\n  add CLAIM.json --path PROJECT",
   "help.claim.add": "Usage: rigorgraph [--lang LANGUAGE] claim add CLAIM.json [--path PROJECT]\n\nAdd one DRAFT or PROPOSED claim.",

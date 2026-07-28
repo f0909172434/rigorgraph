@@ -93,7 +93,7 @@
   "evidence_type.human_review": "人工审查",
   "severity.error": "错误",
   "severity.warning": "警告",
-  "help.root": "用法：rigorgraph [--lang 语言] 命令\n\n命令：\n  init       初始化项目且不覆盖文件\n  claim      添加研究命题\n  evidence   添加有明确范围的证据\n  verify     记录独立验证\n  audit      检查依赖图与证据完整性\n  report     生成四语言离线报告\n  demo       创建数学、benchmark 或无效演示\n\n语言：en、zh-TW、zh-CN、ja",
+  "help.root": "用法：rigorgraph [--lang 语言] [--version] 命令\n\n选项：\n  --version  显示已安装版本\n\n命令：\n  init       初始化项目且不覆盖文件\n  claim      添加研究命题\n  evidence   添加有明确范围的证据\n  verify     记录独立验证\n  audit      检查依赖图与证据完整性\n  report     生成四语言离线报告\n  demo       创建数学、benchmark 或无效演示\n\n语言：en、zh-TW、zh-CN、ja",
   "help.init": "用法：rigorgraph [--lang 语言] init [路径] [--name 名称]\n\n创建 rigorgraph.yaml 与空白状态文件，不覆盖已有内容。",
   "help.claim": "用法：rigorgraph [--lang 语言] claim 命令\n\n命令：\n  add CLAIM.json --path 项目",
   "help.claim.add": "用法：rigorgraph [--lang 语言] claim add CLAIM.json [--path 项目]\n\n添加一条 DRAFT 或 PROPOSED 命题。",

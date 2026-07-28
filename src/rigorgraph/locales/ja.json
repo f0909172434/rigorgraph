@@ -93,7 +93,7 @@
   "evidence_type.human_review": "人間によるレビュー",
   "severity.error": "エラー",
   "severity.warning": "警告",
-  "help.root": "使い方：rigorgraph [--lang 言語] コマンド\n\nコマンド：\n  init       ファイルを上書きせずに初期化\n  claim      研究上の主張を追加\n  evidence   範囲を限定した証拠を追加\n  verify     独立検証を記録\n  audit      依存グラフと証拠の完全性を確認\n  report     4 言語オフラインレポートを生成\n  demo       数学、benchmark、無効デモを作成\n\n言語：en、zh-TW、zh-CN、ja",
+  "help.root": "使い方：rigorgraph [--lang 言語] [--version] コマンド\n\nオプション：\n  --version  インストール済みバージョンを表示\n\nコマンド：\n  init       ファイルを上書きせずに初期化\n  claim      研究上の主張を追加\n  evidence   範囲を限定した証拠を追加\n  verify     独立検証を記録\n  audit      依存グラフと証拠の完全性を確認\n  report     4 言語オフラインレポートを生成\n  demo       数学、benchmark、無効デモを作成\n\n言語：en、zh-TW、zh-CN、ja",
   "help.init": "使い方：rigorgraph [--lang 言語] init [パス] [--name 名前]\n\n既存内容を上書きせず、rigorgraph.yaml と空の状態ファイルを作成します。",
   "help.claim": "使い方：rigorgraph [--lang 言語] claim コマンド\n\nコマンド：\n  add CLAIM.json --path プロジェクト",
   "help.claim.add": "使い方：rigorgraph [--lang 言語] claim add CLAIM.json [--path プロジェクト]\n\nDRAFT または PROPOSED の主張を 1 件追加します。",

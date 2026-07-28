@@ -8,16 +8,16 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 
 > RigorGraph はワークフローの完全性と追跡可能性を確認します。`VERIFIED` は記録されたワークフローで受理されたことを意味するだけで、絶対的な真理、形式認証、査読、専門家の合意を意味しません。
 
+> **公開ベータ：**最初の外部ユーザー 5 名を募集しています。デモを実行し、レポートを開くまでの時間を測り、最初に分かりにくかった手順を [ベータフィードバックフォーム](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) で共有してください。非公開の研究データは含めないでください。
+
 ![RigorGraph 主張—証拠フロー](assets/rigorgraph-flow.svg)
 
 ## クイックスタート
 
-Python 3.11 以降が必要です。API キーは不要です。現在は非公開のリリース候補版なので、ソースからインストールしてください。`pip install rigorgraph` は、PyPI への公開が承認された後に利用可能になります。
+Python 3.11 以降が必要です。API キーは不要です。公開ベータ期間中はタグ付きソース版をインストールしてください。`pip install rigorgraph` は、PyPI への公開が承認された後に利用可能になります。
 
 ```bash
-git clone https://github.com/f0909172434/rigorgraph.git
-cd rigorgraph
-python -m pip install .
+python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
 rigorgraph --lang ja demo --scenario math --open
 ```
 
