@@ -17,7 +17,14 @@ from rigorgraph.audit import OUTCOME_STATUS, audit_project, should_fail
 from rigorgraph.demo import create_demo
 from rigorgraph.i18n import LanguageChoice, Translator, resolve_language
 from rigorgraph.integrity import claim_snapshot_sha256
-from rigorgraph.models import Claim, ClaimStatus, Evidence, Verification, VerificationRequest
+from rigorgraph.models import (
+    Claim,
+    ClaimStatus,
+    ClaimType,
+    Evidence,
+    Verification,
+    VerificationRequest,
+)
 from rigorgraph.report import ViewerMissingError, generate_report
 from rigorgraph.storage import (
     CLAIMS_FILE,
@@ -176,6 +183,80 @@ def init_command(
         console.print(translator.text("init.created", path=path.resolve()), style="green")
     else:
         console.print(translator.text("init.existing"), style="yellow")
+
+
+@app.command("quickstart", cls=LocalizedCommand)
+def quickstart_command(
+    ctx: typer.Context,
+    statement: Annotated[
+        str,
+        typer.Option("--statement", help="Initial research claim in the user's original language."),
+    ],
+    author: Annotated[
+        str,
+        typer.Option("--author", help="Author of the initial research claim."),
+    ],
+    path: Annotated[Path, typer.Argument(help="Directory for the new project.")] = Path(
+        "rigorgraph-project"
+    ),
+    claim_type: Annotated[
+        str,
+        typer.Option("--type", help="Claim type: formal, literature, empirical, or benchmark."),
+    ] = "formal",
+    claim_id: Annotated[
+        str,
+        typer.Option("--claim-id", help="Stable English identifier for the initial claim."),
+    ] = "CLM-001",
+    name: Annotated[
+        str,
+        typer.Option("--name", help="Project name."),
+    ] = "RigorGraph research project",
+    open_report: Annotated[
+        bool,
+        typer.Option("--open", help="Open the generated report in a browser."),
+    ] = False,
+) -> None:
+    choice, translator = _language(ctx, path)
+    target = path.resolve()
+    if target.exists() and (not target.is_dir() or any(target.iterdir())):
+        error_console.print(translator.text("error.file_exists", path=target), style="red")
+        raise typer.Exit(1)
+    try:
+        selected_type = ClaimType(claim_type)
+        if selected_type == ClaimType.SYNTHESIS:
+            raise ValueError("quickstart requires a primary claim type, not synthesis")
+        claim = Claim(
+            id=claim_id,
+            statement=statement,
+            type=selected_type,
+            status=ClaimStatus.DRAFT,
+            authors=[author],
+        )
+    except (ValidationError, ValueError) as exc:
+        error_console.print(translator.text("error.input_invalid", detail=exc), style="red")
+        raise typer.Exit(2) from exc
+
+    initialize_project(target, name, choice.code)
+    append_record(target / STATE_DIR / CLAIMS_FILE, claim)
+    project = _load(target, translator)
+    result = audit_project(project)
+    report_path = target / "rigorgraph-report.html"
+    try:
+        generate_report(project, result, report_path, choice)
+    except ViewerMissingError as exc:
+        error_console.print(translator.text("error.viewer_missing"), style="red")
+        raise typer.Exit(2) from exc
+    console.print(
+        translator.text(
+            "quickstart.created",
+            id=claim.id,
+            path=report_path,
+        ),
+        style="green",
+    )
+    console.print(translator.text("quickstart.boundary"), style="yellow")
+    if open_report:
+        webbrowser.open(report_path.as_uri())
 
 
 @claim_app.command("add", cls=LocalizedCommand)

@@ -23,6 +23,19 @@ def test_help_is_localized() -> None:
         assert heading in result.output
 
 
+def test_quickstart_help_is_localized() -> None:
+    expected = {
+        "en": "original language",
+        "zh-TW": "原始語言",
+        "zh-CN": "原始语言",
+        "ja": "原文",
+    }
+    for language, phrase in expected.items():
+        result = runner.invoke(app, ["--lang", language, "quickstart", "--help"])
+        assert result.exit_code == 0, result.output
+        assert phrase in result.output
+
+
 def test_version_is_stable_machine_readable_output() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
@@ -44,6 +57,82 @@ def test_four_language_init_and_no_overwrite(tmp_path) -> None:
         assert text in first.output
         assert second.exit_code == 0
         assert (root / ".rigorgraph" / "claims.jsonl").exists()
+
+
+def test_four_language_quickstart_creates_original_draft_and_report(tmp_path) -> None:
+    expected = {
+        "en": "DRAFT",
+        "zh-TW": "DRAFT",
+        "zh-CN": "DRAFT",
+        "ja": "DRAFT",
+    }
+    statements = {
+        "en": "Every bounded sequence has property P.",
+        "zh-TW": "每個有界數列都具有性質 P。",
+        "zh-CN": "每个有界数列都具有性质 P。",
+        "ja": "すべての有界数列は性質 P を持つ。",
+    }
+    for language, marker in expected.items():
+        root = tmp_path / language
+        result = runner.invoke(
+            app,
+            [
+                "--lang",
+                language,
+                "quickstart",
+                str(root),
+                "--statement",
+                statements[language],
+                "--author",
+                "Researcher",
+                "--type",
+                "formal",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert marker in result.output
+        project = json.loads((root / ".rigorgraph" / "claims.jsonl").read_text(encoding="utf-8"))
+        assert project["statement"] == statements[language]
+        assert project["status"] == "DRAFT"
+        report = (root / "rigorgraph-report.html").read_text(encoding="utf-8")
+        assert statements[language] in report
+
+
+def test_quickstart_rejects_synthesis_and_never_overwrites(tmp_path) -> None:
+    invalid = runner.invoke(
+        app,
+        [
+            "quickstart",
+            str(tmp_path / "invalid"),
+            "--statement",
+            "Unsupported synthesis shortcut.",
+            "--author",
+            "Researcher",
+            "--type",
+            "synthesis",
+        ],
+    )
+    assert invalid.exit_code == 2
+    assert not (tmp_path / "invalid" / "rigorgraph.yaml").exists()
+
+    target = tmp_path / "existing"
+    target.mkdir()
+    sentinel = target / "keep.txt"
+    sentinel.write_text("keep", encoding="utf-8")
+    existing = runner.invoke(
+        app,
+        [
+            "quickstart",
+            str(target),
+            "--statement",
+            "A claim.",
+            "--author",
+            "Researcher",
+        ],
+    )
+    assert existing.exit_code == 1
+    assert sentinel.read_text(encoding="utf-8") == "keep"
+    assert not (target / "rigorgraph.yaml").exists()
 
 
 def test_full_cli_golden_path(tmp_path) -> None:

@@ -94,8 +94,11 @@ def check_viewer() -> list[str]:
     path = ROOT / "src" / "rigorgraph" / "viewer" / "index.html"
     if not path.is_file():
         return ["viewer/index.html is missing"]
-    content = path.read_text(encoding="utf-8")
+    raw = path.read_bytes()
+    content = raw.decode("utf-8")
     errors: list[str] = []
+    if b"\r\n" in raw or b"\r" in raw:
+        errors.append("viewer must use reproducible LF line endings")
     if content.count("__RIGORGRAPH_DATA__") != 1:
         errors.append("viewer must contain exactly one report data marker")
     if re.search(r"<(script|link)[^>]+(src|href)=[\"']https?://", content, re.IGNORECASE):

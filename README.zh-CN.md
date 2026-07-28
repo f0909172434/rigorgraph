@@ -33,12 +33,10 @@ rigorgraph --lang zh-CN audit invalid-demo
 ### 创建自己的项目
 
 ```bash
-rigorgraph --lang zh-CN init 我的研究 --name "我的研究项目"
-rigorgraph --lang zh-CN audit 我的研究
-rigorgraph --lang zh-CN report 我的研究 --output 研究报告.html --open
+rigorgraph --lang zh-CN quickstart 我的研究 --name "我的研究项目" --author "你的名字" --type formal --statement "每个有界数列都具有性质 P。" --open
 ```
 
-项目使用可阅读、可版本控制的记录：
+这会使用你输入的原始语言创建一个真实的 `DRAFT` 命题，并打开离线报告。命题会列在“未解缺口”中；RigorGraph 不会伪造证据或将它升级为 `VERIFIED`。项目使用可阅读、可版本控制的记录：
 
 ```text
 我的研究/
@@ -53,6 +51,7 @@ rigorgraph --lang zh-CN report 我的研究 --output 研究报告.html --open
 
 | 命令 | 用途 |
 | --- | --- |
+| `rigorgraph quickstart` | 不伪造证据，创建首个 `DRAFT` 命题与可阅读离线报告 |
 | `rigorgraph init` | 初始化项目且不覆盖已有文件 |
 | `rigorgraph claim add CLAIM.json` | 添加 `DRAFT` 或 `PROPOSED` 命题 |
 | `rigorgraph evidence add EVIDENCE.json` | 添加有明确范围的证据；本地文件必须提供 SHA-256 |
