@@ -33,12 +33,10 @@ rigorgraph --lang zh-TW audit invalid-demo
 ### 建立自己的專案
 
 ```bash
-rigorgraph --lang zh-TW init 我的研究 --name "我的研究專案"
-rigorgraph --lang zh-TW audit 我的研究
-rigorgraph --lang zh-TW report 我的研究 --output 研究報告.html --open
+rigorgraph --lang zh-TW quickstart 我的研究 --name "我的研究專案" --author "你的名字" --type formal --statement "每個有界數列都具有性質 P。" --open
 ```
 
-專案使用可閱讀、可版本控制的紀錄：
+這會用你輸入的原始語言建立一個真實的 `DRAFT` 命題，並開啟離線報告。命題會列在「未解缺口」；RigorGraph 不會捏造證據或將它晉升為 `VERIFIED`。專案使用可閱讀、可版本控制的紀錄：
 
 ```text
 我的研究/
@@ -53,6 +51,7 @@ rigorgraph --lang zh-TW report 我的研究 --output 研究報告.html --open
 
 | 命令 | 用途 |
 | --- | --- |
+| `rigorgraph quickstart` | 不捏造證據，建立首個 `DRAFT` 命題與可閱讀離線報告 |
 | `rigorgraph init` | 初始化專案且不覆寫既有檔案 |
 | `rigorgraph claim add CLAIM.json` | 新增 `DRAFT` 或 `PROPOSED` 命題 |
 | `rigorgraph evidence add EVIDENCE.json` | 新增具範圍的證據；本機檔案必須提供 SHA-256 |

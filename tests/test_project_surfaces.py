@@ -16,6 +16,12 @@ def test_readmes_link_all_languages_and_quickstart() -> None:
         assert "rigorgraph" in content.lower()
         assert "v0.1.0-beta.1" in content
         assert "beta-feedback.yml" in content
+        assert "rigorgraph quickstart" in content
+
+
+def test_generated_viewer_uses_cross_platform_line_endings() -> None:
+    content = (ROOT / "src" / "rigorgraph" / "viewer" / "index.html").read_bytes()
+    assert b"\r" not in content
 
 
 def test_plugin_manifest_is_skills_only() -> None:

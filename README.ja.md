@@ -33,12 +33,10 @@ rigorgraph --lang ja audit invalid-demo
 ### 自分のプロジェクトを作成する
 
 ```bash
-rigorgraph --lang ja init my-research --name "私の研究プロジェクト"
-rigorgraph --lang ja audit my-research
-rigorgraph --lang ja report my-research --output research-report.html --open
+rigorgraph --lang ja quickstart my-research --name "私の研究プロジェクト" --author "あなたの名前" --type formal --statement "すべての有界数列は性質 P を持つ。" --open
 ```
 
-プロジェクトは、人間が読めてバージョン管理できるレコードを保存します。
+入力した原文のまま実際の `DRAFT` 主張を 1 件作成し、オフラインレポートを開きます。主張は「未解決のギャップ」に表示され、RigorGraph が証拠を捏造したり `VERIFIED` に昇格させたりすることはありません。プロジェクトは、人間が読めてバージョン管理できるレコードを保存します。
 
 ```text
 my-research/
@@ -53,6 +51,7 @@ my-research/
 
 | コマンド | 用途 |
 | --- | --- |
+| `rigorgraph quickstart` | 証拠を捏造せず、最初の `DRAFT` 主張と読みやすいオフラインレポートを作成 |
 | `rigorgraph init` | 既存ファイルを上書きせずに初期化 |
 | `rigorgraph claim add CLAIM.json` | `DRAFT` または `PROPOSED` の主張を追加 |
 | `rigorgraph evidence add EVIDENCE.json` | 範囲を限定した証拠を追加。ローカルファイルには SHA-256 が必須 |

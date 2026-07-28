@@ -33,12 +33,10 @@ The audit rejects the attempt to treat a finite numerical scan as a formal proof
 ### Start your own project
 
 ```bash
-rigorgraph --lang en init my-research --name "My research project"
-rigorgraph audit my-research
-rigorgraph report my-research --output my-report.html --open
+rigorgraph --lang en quickstart my-research --name "My research project" --author "Your name" --type formal --statement "Every bounded sequence has property P." --open
 ```
 
-The project stores human-readable, version-controlled records:
+This creates one real `DRAFT` claim in the language you supplied and opens its offline report. The claim appears under Open gaps; RigorGraph does not invent evidence or promote it to `VERIFIED`. The project stores human-readable, version-controlled records:
 
 ```text
 my-research/
@@ -53,6 +51,7 @@ my-research/
 
 | Command | Purpose |
 | --- | --- |
+| `rigorgraph quickstart` | Create a first `DRAFT` claim and readable offline report without fabricating evidence |
 | `rigorgraph init` | Create a project without overwriting existing files |
 | `rigorgraph claim add CLAIM.json` | Add a `DRAFT` or `PROPOSED` claim |
 | `rigorgraph evidence add EVIDENCE.json` | Add scoped evidence; local files require a SHA-256 digest |
