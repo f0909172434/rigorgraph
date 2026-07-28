@@ -8,7 +8,7 @@ RigorGraph 是本地优先的 CLI、离线报告、GitHub Action 与技能包，
 
 > RigorGraph 检查工作流程完整性与可追溯性。`VERIFIED` 只表示已被记录的工作流程接受，不代表绝对真理、形式认证、同行评审或专家共识。
 
-> **公开 Beta：**我们正在寻找前 5 位外部用户。请运行 demo、记录打开报告所需时间，并通过 [Beta 反馈表](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) 告诉我们第一个令人困惑的步骤。请勿提交私人研究数据。
+> **公开 Beta：**RigorGraph 会在确定性质量门通过后持续发布，不以固定的外部用户数量阻塞开发。请运行 demo，并通过 [Beta 反馈表](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) 告诉我们第一个令人困惑的步骤。请勿提交私人研究数据。
 
 ![RigorGraph 命题—证据流程](assets/rigorgraph-flow.svg)
 
@@ -90,4 +90,4 @@ rigorgraph --lang zh-CN report 我的研究 --output 研究报告.html --open
 - 确定性门控能发现记录不完整与错误晋升，但不能保证人类或 AI 证明在数学上正确。
 - 核心结果仍须接受相应的专家审查。
 
-源代码开发、GitHub Action 与贡献方式请参阅 [英文 README](README.md) 和 [CONTRIBUTING.md](CONTRIBUTING.md)。MIT License。
+源代码开发、GitHub Action 与贡献方式请参阅 [英文 README](README.md) 和 [CONTRIBUTING.md](CONTRIBUTING.md)；发布条件请参阅 [Beta 发布政策](docs/BETA_POLICY.md)。MIT License。

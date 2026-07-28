@@ -126,12 +126,24 @@ def check_readmes() -> list[str]:
 def check_beta_surfaces() -> list[str]:
     errors: list[str] = []
     readmes = ("README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md")
+    fixed_tester_phrases = ("first five external", "前 5 位外部", "外部ユーザー 5 名")
     for name in readmes:
         content = (ROOT / name).read_text(encoding="utf-8")
         if BETA_TAG not in content:
             errors.append(f"{name}: missing public beta tag")
         if "beta-feedback.yml" not in content:
             errors.append(f"{name}: missing beta feedback link")
+        if any(phrase in content for phrase in fixed_tester_phrases):
+            errors.append(f"{name}: fixed external tester quota must not block beta releases")
+
+    policy_path = ROOT / "docs" / "BETA_POLICY.md"
+    try:
+        policy = policy_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"beta release policy: {exc}")
+    else:
+        if "External use is evidence, not permission" not in policy:
+            errors.append("beta release policy must separate external evidence from permission")
 
     issue_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "beta-feedback.yml"
     try:
@@ -148,8 +160,14 @@ def check_beta_surfaces() -> list[str]:
 
     for locale in ("en", "zh-TW", "zh-CN", "ja"):
         path = ROOT / "launch" / f"BETA_RELEASE_NOTES.{locale}.md"
-        if not path.is_file() or BETA_TAG not in path.read_text(encoding="utf-8"):
+        if not path.is_file():
             errors.append(f"missing or stale beta release notes: {locale}")
+            continue
+        content = path.read_text(encoding="utf-8")
+        if BETA_TAG not in content:
+            errors.append(f"missing or stale beta release notes: {locale}")
+        if any(phrase in content for phrase in fixed_tester_phrases):
+            errors.append(f"beta release notes {locale}: fixed external tester quota remains")
     return errors
 
 

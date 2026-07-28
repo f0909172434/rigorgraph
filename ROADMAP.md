@@ -6,12 +6,12 @@
 - Four-language CLI, help, skills, documentation, and offline report
 - Math, benchmark, and invalid-promotion demos
 - GitHub Action and cross-platform CI
-- Recruit the first five external successful-use cases
+- Collect external successful-use cases asynchronously; no fixed tester count blocks releases
 - Fix positioning, installation, and onboarding before expanding scope
 
 ## v1.0 — public launch
 
-- Five independent external fresh-install tests
+- Track independent external fresh-install evidence after each beta without blocking ongoing development
 - Public PyPI package and signed GitHub release
 - Public Codex/plugin distribution path
 - GitHub profile, demo media, and launch posts

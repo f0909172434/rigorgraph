@@ -8,7 +8,7 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 
 > RigorGraph はワークフローの完全性と追跡可能性を確認します。`VERIFIED` は記録されたワークフローで受理されたことを意味するだけで、絶対的な真理、形式認証、査読、専門家の合意を意味しません。
 
-> **公開ベータ：**最初の外部ユーザー 5 名を募集しています。デモを実行し、レポートを開くまでの時間を測り、最初に分かりにくかった手順を [ベータフィードバックフォーム](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) で共有してください。非公開の研究データは含めないでください。
+> **公開ベータ：**RigorGraph は決定的な品質ゲートを通過した時点で継続的にリリースし、固定人数の外部ユーザーを開発の前提にしません。デモを実行し、最初に分かりにくかった手順を [ベータフィードバックフォーム](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) で共有してください。非公開の研究データは含めないでください。
 
 ![RigorGraph 主張—証拠フロー](assets/rigorgraph-flow.svg)
 
@@ -90,4 +90,4 @@ Codex では `$skill-installer` に `f0909172434/rigorgraph` からのインス�
 - 決定的ゲートは不完全な記録や不正な昇格を検出できますが、人間や AI の証明が数学的に正しいことを保証しません。
 - 重要な結果には適切な専門家レビューが必要です。
 
-ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。MIT License。
+ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。リリース条件は [ベータリリース方針](docs/BETA_POLICY.md) に記載しています。MIT License。

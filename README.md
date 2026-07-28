@@ -8,7 +8,7 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 
 > RigorGraph checks workflow integrity and traceability. `VERIFIED` means accepted by the recorded workflow; it does not mean absolute truth, formal certification, peer review, or expert consensus.
 
-> **Public beta:** We are looking for the first five external users. Run the demo, time how long it takes to open the report, and share the first confusing step through the [beta feedback form](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml). Do not include private research data.
+> **Public beta:** RigorGraph releases proceed when deterministic quality gates pass; no fixed external-user count blocks development. Run the demo and share the first confusing step through the [beta feedback form](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml). Do not include private research data.
 
 ![RigorGraph claim-evidence flow](assets/rigorgraph-flow.svg)
 
@@ -92,8 +92,8 @@ It also ships a native `.codex-plugin/plugin.json`. In Codex, ask `$skill-instal
 
 ```yaml
 steps:
-  - uses: actions/checkout@v6
-  - uses: actions/setup-python@v6
+  - uses: actions/checkout@v7
+  - uses: actions/setup-python@v7
     with:
       python-version: "3.12"
   - uses: f0909172434/rigorgraph@v0.1.0-beta.1
@@ -119,7 +119,7 @@ pytest
 python scripts/release_check.py
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for translation and verification rules.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for translation and verification rules, and [Beta release policy](docs/BETA_POLICY.md) for the solo-maintainer release criteria.
 
 ## Privacy and boundaries
 
