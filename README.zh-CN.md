@@ -8,16 +8,16 @@ RigorGraph 是本地优先的 CLI、离线报告、GitHub Action 与技能包，
 
 > RigorGraph 检查工作流程完整性与可追溯性。`VERIFIED` 只表示已被记录的工作流程接受，不代表绝对真理、形式认证、同行评审或专家共识。
 
-> **公开 Beta：**RigorGraph 会在确定性质量门通过后持续发布，不以固定的外部用户数量阻塞开发。请运行 demo，并通过 [Beta 反馈表](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) 告诉我们第一个令人困惑的步骤。请勿提交私人研究数据。
+> **1.0 发布候选版：**RigorGraph 1.0 的公开接口只做向前兼容的加法变更，并且只在确定性质量门通过后发布。外部使用是证据，不是降低或阻塞质量门的理由。公开反馈请勿包含私人研究数据。
 
 ![RigorGraph 命题—证据流程](assets/rigorgraph-flow.svg)
 
 ## 快速开始
 
-需要 Python 3.11 或更高版本，不需要 API 密钥。公开 Beta 期间请安装已标记的源代码版本；只有在获准发布到 PyPI 后，`pip install rigorgraph` 才会可用。
+需要 Python 3.11 或更高版本，不需要 API 密钥。获准发布 PyPI RC 后，请安装：
 
 ```bash
-python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
+python -m pip install --pre "rigorgraph==1.0.0rc1"
 rigorgraph --lang zh-CN demo --scenario math --open
 ```
 
@@ -89,4 +89,6 @@ rigorgraph --lang zh-CN quickstart 我的研究 --name "我的研究项目" --au
 - 确定性门控能发现记录不完整与错误晋升，但不能保证人类或 AI 证明在数学上正确。
 - 核心结果仍须接受相应的专家审查。
 
-源代码开发、GitHub Action 与贡献方式请参阅 [英文 README](README.md) 和 [CONTRIBUTING.md](CONTRIBUTING.md)；发布条件请参阅 [Beta 发布政策](docs/BETA_POLICY.md)。MIT License。
+RigorGraph 1.0 可用 `rigorgraph evidence import BUNDLE.json --claim ID` 保存 HonestCI 等工具产生的版本化证据包；只允许链接 `DRAFT` 或 `PROPOSED`，且绝不自动验证命题。详细契约请参阅 [Evidence bundles](docs/EVIDENCE_BUNDLES.md)。
+
+源代码开发、GitHub Action 与贡献方式请参阅 [英文 README](README.md) 和 [CONTRIBUTING.md](CONTRIBUTING.md)；发布条件请参阅 [发布政策](docs/RELEASE_POLICY.md)。MIT License。

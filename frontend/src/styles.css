@@ -68,6 +68,7 @@ dl { display: grid; grid-template-columns: minmax(100px, .34fr) 1fr; gap: 8px 12
 dt { color: var(--muted); font-weight: 700; }
 dd { margin: 0; overflow-wrap: anywhere; }
 .hash { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .7rem; }
+.evidence-boundary { margin: 16px 0 0; padding: 12px; border-radius: 10px; color: var(--muted); background: #f2f4fb; font-size: .78rem; line-height: 1.5; }
 
 .issue { padding: 16px 18px; border-left: 5px solid var(--warning); border-radius: 12px; background: #fff9ea; }
 .issue.error { border-color: var(--danger); background: #fff2f2; }
@@ -101,6 +102,7 @@ footer p { margin: 4px 0; }
   body { background: radial-gradient(circle at 8% 0%, #242a5b 0, transparent 30%), #101321; }
   .panel, .record-card { background: var(--paper); }
   .metric { background: #20253b; }
+  .evidence-boundary { background: #20253b; }
   .graph-canvas { background: #171b2d; }
   .filters input, .filters select { color: var(--ink); background: #1b2034; }
   .tabs button:hover { background: #252a40; }

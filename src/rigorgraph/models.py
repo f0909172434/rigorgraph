@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from enum import StrEnum
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -16,6 +16,12 @@ def utc_now() -> datetime:
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+
+class AdditiveModel(BaseModel):
+    """A stable v1 wire model that permits future optional fields."""
+
+    model_config = ConfigDict(extra="allow", str_strip_whitespace=True, populate_by_name=True)
 
 
 class ClaimType(StrEnum):
@@ -33,6 +39,101 @@ class EvidenceType(StrEnum):
     COMPUTATION = "computation"
     BENCHMARK_RUN = "benchmark_run"
     HUMAN_REVIEW = "human_review"
+
+
+class EvidenceProducer(StrictModel):
+    name: str = Field(min_length=1)
+    version: str = Field(
+        pattern=r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+    )
+
+
+class EvidenceProvenance(StrictModel):
+    repository: str | None = Field(default=None, min_length=1)
+    commit: str | None = Field(default=None, pattern=r"^[a-fA-F0-9]{40,64}$")
+    ref: str | None = Field(default=None, min_length=1)
+    workflow_ref: str | None = Field(default=None, min_length=1)
+    run_id: str | None = Field(default=None, min_length=1)
+    run_attempt: int | None = Field(default=None, ge=1)
+    event: str | None = Field(default=None, min_length=1)
+
+
+class EvidenceArtifact(AdditiveModel):
+    role: str = Field(min_length=1)
+    path: str = Field(min_length=1)
+    size: int = Field(ge=0)
+    sha256: str = Field(pattern=r"^[a-fA-F0-9]{64}$")
+
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, value: str) -> str:
+        candidate = PurePosixPath(value)
+        if (
+            "\\" in value
+            or candidate.is_absolute()
+            or value in {"", "."}
+            or ".." in candidate.parts
+        ):
+            raise ValueError("artifact path must be a relative POSIX path without traversal")
+        return value
+
+
+class HonestCITotals(AdditiveModel):
+    tests: int = Field(ge=0)
+    failures: int = Field(ge=0)
+    errors: int = Field(ge=0)
+    skipped: int = Field(ge=0)
+
+
+class HonestCIReport(HonestCITotals):
+    name: str = Field(min_length=1)
+    files: list[str]
+    baseline_tests: int | None = Field(default=None, alias="baselineTests", ge=0)
+    drop_percent: float | None = Field(default=None, alias="dropPercent", ge=0)
+
+
+class HonestCIFinding(AdditiveModel):
+    code: str = Field(pattern=r"^HCI\d{3}_[A-Z0-9_]+$")
+    severity: Literal["error", "warning"]
+    message: str = Field(min_length=1)
+    file: str | None = None
+    line: int | None = Field(default=None, ge=1)
+    report: str | None = None
+
+
+class HonestCIResult(AdditiveModel):
+    schema_version: Literal[1] = Field(alias="schemaVersion")
+    status: Literal["passed", "failed"]
+    totals: HonestCITotals
+    baseline_tests: int | None = Field(default=None, alias="baselineTests", ge=0)
+    drop_percent: float | None = Field(default=None, alias="dropPercent", ge=0)
+    reports: list[HonestCIReport]
+    findings: list[HonestCIFinding]
+
+
+class EvidenceBundle(AdditiveModel):
+    format: Literal["rigorgraph-evidence-bundle"]
+    schema_version: Literal[1]
+    profile: Literal["honest-ci/check-result-v1"]
+    evidence_type: EvidenceType
+    title: str = Field(min_length=1)
+    scope: str = Field(min_length=1)
+    created_at: datetime
+    producer: EvidenceProducer
+    provenance: EvidenceProvenance | None = None
+    artifacts: list[EvidenceArtifact] = Field(min_length=1)
+    result: HonestCIResult
+
+    @model_validator(mode="after")
+    def validate_profile(self) -> EvidenceBundle:
+        paths = [artifact.path for artifact in self.artifacts]
+        if len(paths) != len(set(paths)):
+            raise ValueError("artifact paths must be unique")
+        if self.evidence_type != EvidenceType.COMPUTATION:
+            raise ValueError("HonestCI bundles must use computation evidence")
+        if self.producer.name != "honest-ci":
+            raise ValueError("HonestCI bundle producer must be honest-ci")
+        return self
 
 
 class ClaimStatus(StrEnum):

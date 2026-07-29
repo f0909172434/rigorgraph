@@ -14,8 +14,8 @@ def test_readmes_link_all_languages_and_quickstart() -> None:
         content = (ROOT / name).read_text(encoding="utf-8")
         assert all(link in content for link in names)
         assert "rigorgraph" in content.lower()
-        assert "v0.1.0-beta.1" in content
-        assert "beta-feedback.yml" in content
+        assert "1.0.0rc1" in content
+        assert "docs/EVIDENCE_BUNDLES.md" in content
         assert "rigorgraph quickstart" in content
 
 
@@ -38,7 +38,7 @@ def test_action_manifest_is_valid_composite_yaml() -> None:
     assert manifest["runs"]["steps"]
 
 
-def test_beta_feedback_form_and_release_notes() -> None:
+def test_historical_beta_feedback_form_and_release_notes_remain_available() -> None:
     issue_form = yaml.safe_load(
         (ROOT / ".github" / "ISSUE_TEMPLATE" / "beta-feedback.yml").read_text(encoding="utf-8")
     )
@@ -49,8 +49,8 @@ def test_beta_feedback_form_and_release_notes() -> None:
         assert "v0.1.0-beta.1" in content
 
 
-def test_beta_policy_does_not_require_a_fixed_external_tester_panel() -> None:
-    policy = (ROOT / "docs" / "BETA_POLICY.md").read_text(encoding="utf-8")
+def test_release_policy_does_not_require_a_fixed_external_tester_panel() -> None:
+    policy = (ROOT / "docs" / "RELEASE_POLICY.md").read_text(encoding="utf-8")
     assert "External use is evidence, not permission" in policy
 
     fixed_tester_phrases = ("first five external", "前 5 位外部", "外部ユーザー 5 名")
@@ -59,7 +59,7 @@ def test_beta_policy_does_not_require_a_fixed_external_tester_panel() -> None:
         ROOT / "README.zh-TW.md",
         ROOT / "README.zh-CN.md",
         ROOT / "README.ja.md",
-        *(ROOT / "launch").glob("BETA_RELEASE_NOTES.*.md"),
+        ROOT / "docs" / "RELEASE_POLICY.md",
     ]
     for path in surfaces:
         content = path.read_text(encoding="utf-8")

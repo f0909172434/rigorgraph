@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 import webbrowser
 from pathlib import Path
@@ -14,6 +15,7 @@ from typer.core import TyperCommand, TyperGroup
 
 from rigorgraph import __version__
 from rigorgraph.audit import OUTCOME_STATUS, audit_project, should_fail
+from rigorgraph.bundles import BundleLoadError, bundle_metadata, load_bundle
 from rigorgraph.demo import create_demo
 from rigorgraph.i18n import LanguageChoice, Translator, resolve_language
 from rigorgraph.integrity import claim_snapshot_sha256
@@ -24,6 +26,7 @@ from rigorgraph.models import (
     Evidence,
     Verification,
     VerificationRequest,
+    utc_now,
 )
 from rigorgraph.report import ViewerMissingError, generate_report
 from rigorgraph.storage import (
@@ -34,6 +37,7 @@ from rigorgraph.storage import (
     ProjectLoadError,
     ProjectLockError,
     append_record,
+    atomic_write_bytes,
     find_duplicate_id,
     initialize_project,
     load_project,
@@ -307,6 +311,137 @@ def evidence_add(
         _mutation_error(exc, translator)
         raise typer.Exit(2) from exc
     console.print(translator.text("record.added", kind="evidence", id=evidence.id), style="green")
+
+
+@evidence_app.command("import", cls=LocalizedCommand)
+def evidence_import(
+    ctx: typer.Context,
+    bundle_file: Annotated[Path, typer.Argument(help="RigorGraph evidence bundle JSON file.")],
+    path: Annotated[Path, typer.Option("--path", help="RigorGraph project directory.")] = Path("."),
+    claim_id: Annotated[
+        str | None,
+        typer.Option("--claim", help="DRAFT or PROPOSED claim to link explicitly."),
+    ] = None,
+    evidence_id: Annotated[
+        str | None,
+        typer.Option("--id", help="Stable evidence ID; defaults to the bundle digest."),
+    ] = None,
+) -> None:
+    _, translator = _language(ctx, path)
+    try:
+        bundle, raw, digest = load_bundle(bundle_file)
+    except BundleLoadError as exc:
+        error_console.print(translator.text("error.bundle_invalid", detail=exc), style="red")
+        raise typer.Exit(2) from exc
+    record_id = evidence_id or f"EV-{digest[:16]}"
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{1,127}", record_id):
+        error_console.print(
+            translator.text("error.input_invalid", detail="invalid evidence ID"), style="red"
+        )
+        raise typer.Exit(2)
+    project_root = path.resolve()
+    relative_artifact = Path(STATE_DIR) / "artifacts" / f"{record_id}.json"
+    artifact_path = project_root / relative_artifact
+    try:
+        with project_lock(project_root):
+            project = _load(project_root, translator)
+            existing = next((item for item in project.evidence if item.id == record_id), None)
+            if existing is not None and (
+                existing.sha256 is None
+                or existing.sha256.lower() != digest.lower()
+                or existing.path != relative_artifact.as_posix()
+                or not isinstance(existing.metadata.get("bundle"), dict)
+                or existing.metadata["bundle"].get("format") != "rigorgraph-evidence-bundle"
+            ):
+                error_console.print(
+                    translator.text("error.bundle_conflict", id=record_id), style="red"
+                )
+                raise typer.Exit(1)
+
+            claim = None
+            if claim_id is not None:
+                claim = next((item for item in project.claims if item.id == claim_id), None)
+                if claim is None:
+                    error_console.print(
+                        translator.text("error.claim_not_found", id=claim_id), style="red"
+                    )
+                    raise typer.Exit(1)
+                if claim.status not in {ClaimStatus.DRAFT, ClaimStatus.PROPOSED}:
+                    error_console.print(
+                        translator.text(
+                            "error.claim_link_status", id=claim.id, status=claim.status.value
+                        ),
+                        style="red",
+                    )
+                    raise typer.Exit(1)
+
+            evidence = existing or Evidence(
+                id=record_id,
+                type=bundle.evidence_type,
+                title=bundle.title,
+                producer=f"{bundle.producer.name}@{bundle.producer.version}",
+                path=relative_artifact.as_posix(),
+                scope=bundle.scope,
+                sha256=digest,
+                created_at=bundle.created_at,
+                metadata=bundle_metadata(bundle),
+            )
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                artifact_path.parent.resolve().relative_to(project_root)
+            except ValueError as exc:
+                error_console.print(
+                    translator.text(
+                        "error.input_invalid",
+                        detail="bundle artifact directory escapes the project",
+                    ),
+                    style="red",
+                )
+                raise typer.Exit(2) from exc
+            if artifact_path.is_symlink():
+                error_console.print(
+                    translator.text(
+                        "error.input_invalid",
+                        detail="bundle artifact destination must not be a symbolic link",
+                    ),
+                    style="red",
+                )
+                raise typer.Exit(2)
+            old_artifact = artifact_path.read_bytes() if artifact_path.is_file() else None
+            evidence_path = project.root / STATE_DIR / EVIDENCE_FILE
+            claims_path = project.root / STATE_DIR / CLAIMS_FILE
+            old_evidence = evidence_path.read_text(encoding="utf-8")
+            old_claims = claims_path.read_text(encoding="utf-8")
+            try:
+                atomic_write_bytes(artifact_path, raw)
+                if existing is None:
+                    append_record(evidence_path, evidence)
+                if claim is not None and record_id not in claim.evidence_ids:
+                    updated_claims = [
+                        item.model_copy(
+                            update={
+                                "evidence_ids": [*item.evidence_ids, record_id],
+                                "updated_at": utc_now(),
+                            }
+                        )
+                        if item.id == claim.id
+                        else item
+                        for item in project.claims
+                    ]
+                    write_records(claims_path, updated_claims)
+            except Exception:
+                if old_artifact is None:
+                    artifact_path.unlink(missing_ok=True)
+                else:
+                    atomic_write_bytes(artifact_path, old_artifact)
+                evidence_path.write_text(old_evidence, encoding="utf-8", newline="\n")
+                claims_path.write_text(old_claims, encoding="utf-8", newline="\n")
+                raise
+    except ProjectLockError as exc:
+        _mutation_error(exc, translator)
+        raise typer.Exit(2) from exc
+    message = "record.bundle_existing" if existing is not None else "record.bundle_imported"
+    console.print(translator.text(message, id=record_id), style="green")
 
 
 @app.command("verify", cls=LocalizedCommand)

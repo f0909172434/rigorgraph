@@ -11,7 +11,8 @@ description: Capture a research claim and its scoped supporting evidence in a Ri
 4. State the exact scope. For a source, record its URI and precise locator. For a local artifact, record a project-relative path and SHA-256 digest.
 5. Classify each evidence record as `proof`, `source`, `dataset`, `computation`, `benchmark_run`, or `human_review`. Never relabel numerical evidence as proof.
 6. Create evidence JSON first and run `rigorgraph evidence add`. Then create a `DRAFT` or `PROPOSED` claim JSON and run `rigorgraph claim add`.
-7. Run `rigorgraph audit`. If it fails, report the exact issue codes and leave the epistemic status unchanged.
+7. When the input is a versioned RigorGraph evidence bundle, preserve it with `rigorgraph evidence import BUNDLE.json --claim CLAIM_ID` instead of rewriting producer metadata. Bundle hashes record observed bytes; they do not prove producer identity, runner authenticity, or correctness.
+8. Run `rigorgraph audit`. If it fails, report the exact issue codes and leave the epistemic status unchanged.
 
 Use localized result headings:
 

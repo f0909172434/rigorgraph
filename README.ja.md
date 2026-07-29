@@ -8,7 +8,7 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 
 > RigorGraph はワークフローの完全性と追跡可能性を確認します。`VERIFIED` は記録されたワークフローで受理されたことを意味するだけで、絶対的な真理、形式認証、査読、専門家の合意を意味しません。
 
-> **公開ベータ：**RigorGraph は決定的な品質ゲートを通過した時点で継続的にリリースし、固定人数の外部ユーザーを開発の前提にしません。デモを実行し、最初に分かりにくかった手順を [ベータフィードバックフォーム](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml) で共有してください。非公開の研究データは含めないでください。
+> **1.0 リリース候補：**RigorGraph 1.0 の公開インターフェースは追加的な互換変更のみとし、決定的な品質ゲートを通過した場合にだけ公開します。外部利用は証拠であり、ゲートを弱めたり開発を止めたりする許可ではありません。公開フィードバックに非公開研究データを含めないでください。
 
 ![RigorGraph 主張—証拠フロー](assets/rigorgraph-flow.svg)
 
@@ -17,7 +17,7 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 Python 3.11 以降が必要です。API キーは不要です。公開ベータ期間中はタグ付きソース版をインストールしてください。`pip install rigorgraph` は、PyPI への公開が承認された後に利用可能になります。
 
 ```bash
-python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
+python -m pip install --pre "rigorgraph==1.0.0rc1"
 rigorgraph --lang ja demo --scenario math --open
 ```
 
@@ -89,4 +89,6 @@ Codex では `$skill-installer` に `f0909172434/rigorgraph` からのインス�
 - 決定的ゲートは不完全な記録や不正な昇格を検出できますが、人間や AI の証明が数学的に正しいことを保証しません。
 - 重要な結果には適切な専門家レビューが必要です。
 
-ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。リリース条件は [ベータリリース方針](docs/BETA_POLICY.md) に記載しています。MIT License。
+RigorGraph 1.0 は `rigorgraph evidence import BUNDLE.json --claim ID` で HonestCI などのバージョン付き証拠バンドルを保存できます。リンク先は `DRAFT` または `PROPOSED` に限られ、主張を自動検証しません。契約の詳細は [Evidence bundles](docs/EVIDENCE_BUNDLES.md) を参照してください。
+
+ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。リリース条件は [リリース方針](docs/RELEASE_POLICY.md) に記載しています。MIT License。

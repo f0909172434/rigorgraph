@@ -8,16 +8,16 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 
 > RigorGraph checks workflow integrity and traceability. `VERIFIED` means accepted by the recorded workflow; it does not mean absolute truth, formal certification, peer review, or expert consensus.
 
-> **Public beta:** RigorGraph releases proceed when deterministic quality gates pass; no fixed external-user count blocks development. Run the demo and share the first confusing step through the [beta feedback form](https://github.com/f0909172434/rigorgraph/issues/new?template=beta-feedback.yml). Do not include private research data.
+> **1.0 release candidate:** RigorGraph 1.0 keeps its public interfaces additive and ships only when deterministic quality gates pass. External use is evidence, not permission to weaken or block those gates. Do not include private research data in public feedback.
 
 ![RigorGraph claim-evidence flow](assets/rigorgraph-flow.svg)
 
 ## Quick start
 
-RigorGraph requires Python 3.11 or newer. It does not require an API key. During the public beta, install the tagged source release; `pip install rigorgraph` will become available only after the approved PyPI release.
+RigorGraph requires Python 3.11 or newer and no API key. After the approved PyPI RC publish, install the release candidate with:
 
 ```bash
-python -m pip install "git+https://github.com/f0909172434/rigorgraph.git@v0.1.0-beta.1"
+python -m pip install --pre "rigorgraph==1.0.0rc1"
 rigorgraph demo --scenario math --open
 ```
 
@@ -55,6 +55,7 @@ my-research/
 | `rigorgraph init` | Create a project without overwriting existing files |
 | `rigorgraph claim add CLAIM.json` | Add a `DRAFT` or `PROPOSED` claim |
 | `rigorgraph evidence add EVIDENCE.json` | Add scoped evidence; local files require a SHA-256 digest |
+| `rigorgraph evidence import BUNDLE.json` | Validate and preserve a versioned evidence bundle; optionally link it to a draft claim |
 | `rigorgraph verify CLAIM_ID --file REVIEW.json` | Record an independent `ACCEPT`, `REJECT`, or `UNCERTAIN` outcome |
 | `rigorgraph audit` | Check schemas, graph integrity, evidence class, independence, and hashes |
 | `rigorgraph report` | Generate a four-language offline HTML report |
@@ -76,6 +77,16 @@ Use `--lang en`, `--lang zh-TW`, `--lang zh-CN`, or `--lang ja` before a command
 
 User-authored claims, formulas, quotations, and evidence remain in their original language. The interface translates labels only.
 
+## Evidence bundles
+
+RigorGraph 1.0 defines an additive, versioned evidence-bundle contract. An HonestCI run can emit a bundle containing result summaries, allowlisted GitHub provenance, and SHA-256 digests for the configuration and observed artifacts. Importing it copies the exact JSON into `.rigorgraph/artifacts/`; it never promotes or verifies a claim.
+
+```bash
+rigorgraph evidence import honest-ci-evidence.json --claim CLM-CI --path my-research
+```
+
+Only `DRAFT` and `PROPOSED` claims can be linked. See [Evidence bundles](docs/EVIDENCE_BUNDLES.md) for the schema, compatibility policy, privacy boundary, and HonestCI profile.
+
 ## Agent skills and Codex plugin
 
 The repository includes four focused [Agent Skills](skills/):
@@ -85,7 +96,14 @@ The repository includes four focused [Agent Skills](skills/):
 - `adversarial-verify`
 - `release-audit`
 
-It also ships a native `.codex-plugin/plugin.json`. In Codex, ask `$skill-installer` to install skills from `f0909172434/rigorgraph`, or install the repository as a plugin through a supported local/plugin marketplace workflow.
+It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0-rc.1.zip`; extract it, then install its isolated marketplace:
+
+```console
+codex plugin marketplace add PATH_TO_EXTRACTED_BUNDLE
+codex plugin add rigorgraph@rigorgraph-release
+```
+
+Start a new Codex task after installation so the four skills are discovered. See [Codex plugin installation](docs/CODEX_PLUGIN.md). The ZIP does not edit your personal marketplace file.
 
 ## GitHub Action
 
@@ -95,13 +113,13 @@ steps:
   - uses: actions/setup-python@v7
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@v0.1.0-beta.1
+  - uses: f0909172434/rigorgraph@v1.0.0-rc.1
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The documentation will switch to `@v1` only after the stable v1 tag exists.
+The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The moving `@v1` tag is created only after the stable release passes the RC gates.
 
 ## Develop from source
 
@@ -118,7 +136,7 @@ pytest
 python scripts/release_check.py
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for translation and verification rules, and [Beta release policy](docs/BETA_POLICY.md) for the solo-maintainer release criteria.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for translation and verification rules, and [Release policy](docs/RELEASE_POLICY.md) for the solo-maintainer release criteria.
 
 ## Privacy and boundaries
 

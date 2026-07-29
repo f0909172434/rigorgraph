@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 
 from typer.testing import CliRunner
@@ -8,6 +9,56 @@ from rigorgraph.audit import sha256_file
 from rigorgraph.cli import app
 
 runner = CliRunner()
+
+
+def honest_bundle(*, status: str = "passed", title: str = "HonestCI evidence") -> dict:
+    findings = []
+    if status == "failed":
+        findings = [
+            {
+                "code": "HCI004_ZERO_TESTS",
+                "severity": "error",
+                "message": "The report contains zero tests.",
+                "report": "unit",
+            }
+        ]
+    return {
+        "format": "rigorgraph-evidence-bundle",
+        "schema_version": 1,
+        "profile": "honest-ci/check-result-v1",
+        "evidence_type": "computation",
+        "title": title,
+        "scope": "Observed test execution only.",
+        "created_at": "2026-07-29T00:00:00Z",
+        "producer": {"name": "honest-ci", "version": "1.0.0-rc.1"},
+        "provenance": {
+            "repository": "f0909172434/honest-ci",
+            "commit": "a" * 40,
+            "ref": "refs/heads/main",
+        },
+        "artifacts": [
+            {
+                "role": "report",
+                "path": "reports/junit.xml",
+                "size": 14,
+                "sha256": "b" * 64,
+            }
+        ],
+        "result": {
+            "schemaVersion": 1,
+            "status": status,
+            "totals": {
+                "tests": 0 if status == "failed" else 1,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+            },
+            "baselineTests": None,
+            "dropPercent": None,
+            "reports": [],
+            "findings": findings,
+        },
+    }
 
 
 def test_help_is_localized() -> None:
@@ -39,7 +90,7 @@ def test_quickstart_help_is_localized() -> None:
 def test_version_is_stable_machine_readable_output() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert result.output.strip() == "rigorgraph 0.1.0b1"
+    assert result.output.strip() == "rigorgraph 1.0.0rc1"
 
 
 def test_four_language_init_and_no_overwrite(tmp_path) -> None:
@@ -197,6 +248,121 @@ def test_invalid_demo_returns_failing_audit(tmp_path) -> None:
     result = runner.invoke(app, ["audit", str(root)])
     assert result.exit_code == 1
     assert "RG_EVIDENCE_TYPE_MISSING" in result.output
+
+
+def test_import_bundle_copies_links_and_is_idempotent(tmp_path) -> None:
+    root = tmp_path / "project"
+    assert runner.invoke(app, ["init", str(root)]).exit_code == 0
+    claim_file = tmp_path / "claim.json"
+    claim_file.write_text(
+        json.dumps(
+            {
+                "id": "CLM-CI",
+                "statement": "Expected tests ran.",
+                "type": "empirical",
+                "status": "DRAFT",
+                "authors": ["Maintainer"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert runner.invoke(app, ["claim", "add", str(claim_file), "--path", str(root)]).exit_code == 0
+    bundle_file = tmp_path / "bundle.json"
+    raw = json.dumps(honest_bundle(), separators=(",", ":")).encode()
+    bundle_file.write_bytes(raw)
+    expected_id = f"EV-{hashlib.sha256(raw).hexdigest()[:16]}"
+
+    first = runner.invoke(
+        app,
+        ["evidence", "import", str(bundle_file), "--claim", "CLM-CI", "--path", str(root)],
+    )
+    assert first.exit_code == 0, first.output
+    claims = [
+        json.loads(line)
+        for line in (root / ".rigorgraph" / "claims.jsonl").read_text().splitlines()
+    ]
+    evidence = [
+        json.loads(line)
+        for line in (root / ".rigorgraph" / "evidence.jsonl").read_text().splitlines()
+    ]
+    assert claims[0]["status"] == "DRAFT"
+    assert claims[0]["evidence_ids"] == [expected_id]
+    assert evidence[0]["id"] == expected_id
+    assert evidence[0]["metadata"]["bundle"]["result_status"] == "passed"
+    stored = root / ".rigorgraph" / "artifacts" / f"{expected_id}.json"
+    assert stored.read_bytes() == raw
+
+    again = runner.invoke(
+        app,
+        ["evidence", "import", str(bundle_file), "--claim", "CLM-CI", "--path", str(root)],
+    )
+    assert again.exit_code == 0, again.output
+    assert len((root / ".rigorgraph" / "evidence.jsonl").read_text().splitlines()) == 1
+
+
+def test_import_bundle_rejects_conflict_and_non_draft_claim_without_partial_write(
+    tmp_path,
+) -> None:
+    root = tmp_path / "project"
+    assert runner.invoke(app, ["demo", str(root), "--scenario", "math"]).exit_code == 0
+    bundle_file = tmp_path / "bundle.json"
+    bundle_file.write_text(json.dumps(honest_bundle()), encoding="utf-8")
+    before_evidence = (root / ".rigorgraph" / "evidence.jsonl").read_bytes()
+
+    rejected = runner.invoke(
+        app,
+        [
+            "evidence",
+            "import",
+            str(bundle_file),
+            "--id",
+            "EV-CI",
+            "--claim",
+            "CLM-ODD-SUM",
+            "--path",
+            str(root),
+        ],
+    )
+    assert rejected.exit_code == 1
+    assert (root / ".rigorgraph" / "evidence.jsonl").read_bytes() == before_evidence
+    assert not (root / ".rigorgraph" / "artifacts" / "EV-CI.json").exists()
+
+    draft_root = tmp_path / "draft"
+    assert runner.invoke(app, ["init", str(draft_root)]).exit_code == 0
+    first = runner.invoke(
+        app,
+        ["evidence", "import", str(bundle_file), "--id", "EV-CI", "--path", str(draft_root)],
+    )
+    assert first.exit_code == 0
+    changed = tmp_path / "changed.json"
+    changed.write_text(json.dumps(honest_bundle(title="Different bundle")), encoding="utf-8")
+    conflict = runner.invoke(
+        app,
+        ["evidence", "import", str(changed), "--id", "EV-CI", "--path", str(draft_root)],
+    )
+    assert conflict.exit_code == 1
+
+
+def test_import_bundle_rejects_invalid_input_and_tampering_fails_audit(tmp_path) -> None:
+    root = tmp_path / "project"
+    assert runner.invoke(app, ["init", str(root)]).exit_code == 0
+    invalid = tmp_path / "invalid.json"
+    invalid.write_text('{"format":"rigorgraph-evidence-bundle"}', encoding="utf-8")
+    result = runner.invoke(app, ["evidence", "import", str(invalid), "--path", str(root)])
+    assert result.exit_code == 2
+    assert not (root / ".rigorgraph" / "artifacts").exists()
+
+    bundle_file = tmp_path / "bundle.json"
+    raw = json.dumps(honest_bundle()).encode()
+    bundle_file.write_bytes(raw)
+    imported = runner.invoke(app, ["evidence", "import", str(bundle_file), "--path", str(root)])
+    assert imported.exit_code == 0
+    evidence_id = f"EV-{hashlib.sha256(raw).hexdigest()[:16]}"
+    stored = root / ".rigorgraph" / "artifacts" / f"{evidence_id}.json"
+    stored.write_text("{}", encoding="utf-8")
+    audit = runner.invoke(app, ["audit", str(root), "--json"])
+    assert audit.exit_code == 1
+    assert "RG_HASH_MISMATCH" in audit.output
 
 
 def test_demo_does_not_overwrite_unrelated_directory(tmp_path) -> None:

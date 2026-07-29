@@ -7,10 +7,11 @@ description: Audit a RigorGraph project before release and produce a local read-
 
 1. Read the project config and all `.rigorgraph/` records. Reply in the explicit or configured language: English, Traditional Chinese, Simplified Chinese, or Japanese.
 2. Run `rigorgraph audit --json` and preserve its stable English codes and enums in machine output.
-3. Treat every error as release-blocking. Do not waive missing evidence, self-verification, invalid dependency status, hash mismatch, or cycle failures.
+3. Treat every error as release-blocking. Do not waive missing evidence, self-verification, invalid dependency status, hash mismatch, invalid imported bundle, or cycle failures.
 4. Review open `DRAFT`, `PROPOSED`, `UNDER_REVIEW`, and `UNCERTAIN` claims. Ensure release copy does not present them as verified results.
 5. Run `rigorgraph report --output rigorgraph-report.html` and confirm the offline report opens without network access.
-6. Report the audit status, blocking issues, limitations, report path, and release recommendation. Do not publish, tag, push, or post without explicit authorization.
+6. For imported bundles, confirm the report preserves producer, profile, result, and provenance boundaries without presenting them as independent truth or authentication.
+7. Report the audit status, blocking issues, limitations, report path, and release recommendation. Do not publish, tag, push, or post without explicit authorization.
 
 Use localized headings:
 

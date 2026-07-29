@@ -1,3 +1,3 @@
 """RigorGraph: verification-first research records."""
 
-__version__ = "0.1.0b1"
+__version__ = "1.0.0rc1"

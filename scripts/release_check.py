@@ -13,7 +13,9 @@ from export_schemas import expected_schemas
 from validate_locales import validate as validate_locales
 
 ROOT = Path(__file__).resolve().parents[1]
-BETA_TAG = "v0.1.0-beta.1"
+PYTHON_VERSION = "1.0.0rc1"
+PLUGIN_VERSION = "1.0.0-rc.1"
+RELEASE_TAG = "v1.0.0-rc.1"
 
 
 def check_manifest() -> list[str]:
@@ -29,8 +31,13 @@ def check_manifest() -> list[str]:
             errors.append(f"plugin manifest missing {key}")
     if manifest.get("name") != "rigorgraph":
         errors.append("plugin name must be rigorgraph")
-    if not re.fullmatch(r"\d+\.\d+\.\d+", str(manifest.get("version", ""))):
+    if not re.fullmatch(
+        r"\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+        str(manifest.get("version", "")),
+    ):
         errors.append("plugin version must use strict semver")
+    if manifest.get("version") != PLUGIN_VERSION:
+        errors.append("plugin version must match the release candidate")
     for forbidden in ("mcpServers", "apps", "hooks"):
         if forbidden in manifest:
             errors.append(f"plugin must not declare unused {forbidden}")
@@ -126,51 +133,43 @@ def check_readmes() -> list[str]:
     return errors
 
 
-def check_beta_surfaces() -> list[str]:
+def check_release_surfaces() -> list[str]:
     errors: list[str] = []
     readmes = ("README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md")
     fixed_tester_phrases = ("first five external", "前 5 位外部", "外部ユーザー 5 名")
     for name in readmes:
         content = (ROOT / name).read_text(encoding="utf-8")
-        if BETA_TAG not in content:
-            errors.append(f"{name}: missing public beta tag")
-        if "beta-feedback.yml" not in content:
-            errors.append(f"{name}: missing beta feedback link")
+        if PYTHON_VERSION not in content:
+            errors.append(f"{name}: missing release candidate version")
+        if "docs/EVIDENCE_BUNDLES.md" not in content:
+            errors.append(f"{name}: missing evidence bundle documentation")
         if any(phrase in content for phrase in fixed_tester_phrases):
             errors.append(f"{name}: fixed external tester quota must not block beta releases")
 
-    policy_path = ROOT / "docs" / "BETA_POLICY.md"
+    policy_path = ROOT / "docs" / "RELEASE_POLICY.md"
     try:
         policy = policy_path.read_text(encoding="utf-8")
     except OSError as exc:
-        errors.append(f"beta release policy: {exc}")
+        errors.append(f"release policy: {exc}")
     else:
         if "External use is evidence, not permission" not in policy:
-            errors.append("beta release policy must separate external evidence from permission")
-
-    issue_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "beta-feedback.yml"
-    try:
-        issue_form = yaml.safe_load(issue_path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
-        errors.append(f"beta feedback form: {exc}")
-    else:
-        if not isinstance(issue_form, dict) or not isinstance(issue_form.get("body"), list):
-            errors.append("beta feedback form must be a GitHub issue-form mapping")
+            errors.append("release policy must separate external evidence from permission")
 
     package = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    if package.get("project", {}).get("version") != "0.1.0b1":
-        errors.append("Python package version must match the beta release")
-
-    for locale in ("en", "zh-TW", "zh-CN", "ja"):
-        path = ROOT / "launch" / f"BETA_RELEASE_NOTES.{locale}.md"
-        if not path.is_file():
-            errors.append(f"missing or stale beta release notes: {locale}")
-            continue
-        content = path.read_text(encoding="utf-8")
-        if BETA_TAG not in content:
-            errors.append(f"missing or stale beta release notes: {locale}")
-        if any(phrase in content for phrase in fixed_tester_phrases):
-            errors.append(f"beta release notes {locale}: fixed external tester quota remains")
+    if package.get("project", {}).get("version") != PYTHON_VERSION:
+        errors.append("Python package version must match the release candidate")
+    module = (ROOT / "src" / "rigorgraph" / "__init__.py").read_text(encoding="utf-8")
+    if f'__version__ = "{PYTHON_VERSION}"' not in module:
+        errors.append("runtime version must match the release candidate")
+    for required in (
+        ROOT / "CHANGELOG.md",
+        ROOT / "docs" / "EVIDENCE_BUNDLES.md",
+        ROOT / "schemas" / "evidence-bundle.schema.json",
+    ):
+        if not required.is_file():
+            errors.append(f"release surface missing: {required.relative_to(ROOT)}")
+    if RELEASE_TAG not in (ROOT / "README.md").read_text(encoding="utf-8"):
+        errors.append("English README must pin the release candidate Action tag")
     return errors
 
 
@@ -200,7 +199,7 @@ def main() -> int:
         + check_skills()
         + check_viewer()
         + check_readmes()
-        + check_beta_surfaces()
+        + check_release_surfaces()
         + check_schemas()
     )
     if errors:
@@ -212,6 +211,7 @@ def main() -> int:
             [sys.executable, "-m", "pytest"],
             [sys.executable, "-m", "ruff", "check", "."],
             [sys.executable, "-m", "build"],
+            [sys.executable, "scripts/build_plugin_bundle.py"],
         ]
         for command in commands:
             if run(command):

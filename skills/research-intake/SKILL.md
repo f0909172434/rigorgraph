@@ -9,9 +9,10 @@ description: Formalize a new technical or academic research question in a RigorG
 2. Determine the user's language from the explicit request, project language, or system language. Reply in that language: English, Traditional Chinese, Simplified Chinese, or Japanese.
 3. Clarify the domain, variables, quantifiers, assumptions, target claim type, allowed evidence, constraints, and completion test. Ask only for material missing information.
 4. Separate established facts, user assumptions, proposed claims, and open gaps. Do not attempt a proof or literature conclusion during intake.
-5. Preserve mathematical notation and quoted source text exactly; never translate user-authored claims unless asked.
-6. Initialize the project with `rigorgraph init` if needed. Record candidate claims only as `DRAFT` or `PROPOSED` through `rigorgraph claim add`.
-7. End with the formalized question, assumptions, completion criteria, open gaps, and the safest next step.
+5. If a later CI or experiment run will produce a RigorGraph Evidence Bundle, record the expected scope and producer as a plan only. Do not fabricate the bundle, digest, provenance, or successful result during intake.
+6. Preserve mathematical notation and quoted source text exactly; never translate user-authored claims unless asked.
+7. Initialize the project with `rigorgraph init` if needed. Record candidate claims only as `DRAFT` or `PROPOSED` through `rigorgraph claim add`.
+8. End with the formalized question, assumptions, completion criteria, open gaps, and the safest next step.
 
 Use these localized headings:
 

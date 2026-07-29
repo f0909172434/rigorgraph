@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from rigorgraph.models import Evidence
+from rigorgraph.models import Evidence, EvidenceBundle
 from rigorgraph.storage import ProjectLoadError, ProjectLockError, load_project, project_lock
 
 
@@ -25,6 +25,58 @@ def test_evidence_requires_real_location_and_digest() -> None:
         Evidence.model_validate({**base, "uri": "http://", "locator": "p. 1"})
     with pytest.raises(ValidationError):
         Evidence.model_validate({**base, "uri": "https://example.com/proof"})
+
+
+def test_evidence_bundle_v1_validates_known_profile_and_allows_additive_fields() -> None:
+    payload = {
+        "format": "rigorgraph-evidence-bundle",
+        "schema_version": 1,
+        "profile": "honest-ci/check-result-v1",
+        "evidence_type": "computation",
+        "title": "HonestCI test execution evidence",
+        "scope": "Observed JUnit execution only.",
+        "created_at": "2026-07-29T00:00:00Z",
+        "producer": {"name": "honest-ci", "version": "1.0.0-rc.1"},
+        "artifacts": [
+            {
+                "role": "report",
+                "path": "reports/junit.xml",
+                "size": 12,
+                "sha256": "a" * 64,
+                "media_type": "application/xml",
+            }
+        ],
+        "result": {
+            "schemaVersion": 1,
+            "status": "passed",
+            "totals": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0},
+            "baselineTests": None,
+            "dropPercent": None,
+            "reports": [],
+            "findings": [],
+            "futureOptionalField": True,
+        },
+        "future_optional_field": True,
+    }
+    bundle = EvidenceBundle.model_validate(payload)
+    assert bundle.profile == "honest-ci/check-result-v1"
+    assert bundle.model_extra == {"future_optional_field": True}
+
+    with pytest.raises(ValidationError):
+        EvidenceBundle.model_validate(
+            {
+                **payload,
+                "artifacts": [{**payload["artifacts"][0], "path": "../secret.xml"}],
+            }
+        )
+
+    with pytest.raises(ValidationError):
+        EvidenceBundle.model_validate(
+            {**payload, "result": {**payload["result"], "status": "unknown"}}
+        )
+
+    with pytest.raises(ValidationError):
+        EvidenceBundle.model_validate({**payload, "profile": "unknown/profile-v1"})
 
 
 def test_config_requires_mapping_and_supported_version(tmp_path) -> None:

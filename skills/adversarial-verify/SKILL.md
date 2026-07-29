@@ -14,6 +14,7 @@ description: Independently challenge and verify a PROPOSED RigorGraph claim, rec
    - empirical: reproduce or inspect the dataset, computation, uncertainty, and limitations;
    - benchmark: check data, environment, metric definition, baseline, and reproducibility;
    - synthesis: verify every dependency is currently `VERIFIED`.
+   For imported evidence bundles, inspect the preserved result, profile, scope, and artifact digests. Treat producer-supplied hashes as integrity records, not independent reproduction or proof of runner identity.
 5. Choose exactly one outcome: `ACCEPT`, `REJECT`, or `UNCERTAIN`. Absence of a found counterexample is not proof.
 6. For a `PROPOSED` or `UNDER_REVIEW` claim, write a verification request with rationale and checked evidence IDs, then run `rigorgraph verify CLAIM_ID --file REQUEST.json`.
 7. For an already `VERIFIED` claim whose support fails, do not overwrite history or try to verify it again. Report a release-blocking revocation recommendation and the decisive issue codes.

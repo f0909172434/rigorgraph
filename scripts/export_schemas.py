@@ -5,7 +5,14 @@ import json
 import sys
 from pathlib import Path
 
-from rigorgraph.models import Claim, Evidence, ProjectConfig, Verification, VerificationRequest
+from rigorgraph.models import (
+    Claim,
+    Evidence,
+    EvidenceBundle,
+    ProjectConfig,
+    Verification,
+    VerificationRequest,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "schemas"
@@ -13,6 +20,7 @@ MODELS = {
     "project-config": ProjectConfig,
     "claim": Claim,
     "evidence": Evidence,
+    "evidence-bundle": EvidenceBundle,
     "verification": Verification,
     "verification-request": VerificationRequest,
 }
