@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0
+
+- Promote the additive Evidence Bundle v1 and HonestCI profile after cross-project tests.
+- Confirm fresh public-registry installs on Windows, Ubuntu, and macOS with Python 3.11 and 3.14.
+- Ship reproducible Python distributions, checksums, attestations, a composite Action, and an isolated Codex marketplace ZIP.
+- Preserve the boundary that imported computation evidence never promotes or verifies a claim.
+
 ## 1.0.0rc2
 
 - Add the additive Evidence Bundle v1 schema and HonestCI result profile.

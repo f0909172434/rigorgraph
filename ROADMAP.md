@@ -9,7 +9,7 @@
 - Collect external successful-use cases asynchronously; no fixed tester count blocks releases
 - Fix positioning, installation, and onboarding before expanding scope
 
-## v1.0 — release candidate and public launch
+## v1.0 — stable public launch
 
 - Track independent external fresh-install evidence after each beta without blocking ongoing development
 - Public PyPI package and signed GitHub release

@@ -13,9 +13,9 @@ from export_schemas import expected_schemas
 from validate_locales import validate as validate_locales
 
 ROOT = Path(__file__).resolve().parents[1]
-PYTHON_VERSION = "1.0.0rc2"
-PLUGIN_VERSION = "1.0.0-rc.2"
-RELEASE_TAG = "v1.0.0-rc.2"
+PYTHON_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.0.0"
+RELEASE_TAG = "v1.0.0"
 PYPI_PUBLISH_ACTION = "pypa/gh-action-pypi-publish@v1.14.2"
 
 
@@ -38,7 +38,7 @@ def check_manifest() -> list[str]:
     ):
         errors.append("plugin version must use strict semver")
     if manifest.get("version") != PLUGIN_VERSION:
-        errors.append("plugin version must match the release candidate")
+        errors.append("plugin version must match the release")
     for forbidden in ("mcpServers", "apps", "hooks"):
         if forbidden in manifest:
             errors.append(f"plugin must not declare unused {forbidden}")
@@ -141,7 +141,7 @@ def check_release_surfaces() -> list[str]:
     for name in readmes:
         content = (ROOT / name).read_text(encoding="utf-8")
         if PYTHON_VERSION not in content:
-            errors.append(f"{name}: missing release candidate version")
+            errors.append(f"{name}: missing release version")
         if "docs/EVIDENCE_BUNDLES.md" not in content:
             errors.append(f"{name}: missing evidence bundle documentation")
         if any(phrase in content for phrase in fixed_tester_phrases):
@@ -158,10 +158,10 @@ def check_release_surfaces() -> list[str]:
 
     package = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     if package.get("project", {}).get("version") != PYTHON_VERSION:
-        errors.append("Python package version must match the release candidate")
+        errors.append("Python package version must match the release")
     module = (ROOT / "src" / "rigorgraph" / "__init__.py").read_text(encoding="utf-8")
     if f'__version__ = "{PYTHON_VERSION}"' not in module:
-        errors.append("runtime version must match the release candidate")
+        errors.append("runtime version must match the release")
     for required in (
         ROOT / "CHANGELOG.md",
         ROOT / "docs" / "EVIDENCE_BUNDLES.md",
@@ -171,10 +171,10 @@ def check_release_surfaces() -> list[str]:
         if not required.is_file():
             errors.append(f"release surface missing: {required.relative_to(ROOT)}")
     if RELEASE_TAG not in (ROOT / "README.md").read_text(encoding="utf-8"):
-        errors.append("English README must pin the release candidate Action tag")
+        errors.append("English README must pin the release Action tag")
     workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     if RELEASE_TAG not in workflow:
-        errors.append("release workflow must require the release candidate tag")
+        errors.append("release workflow must require the release tag")
     if PYPI_PUBLISH_ACTION not in workflow:
         errors.append("release workflow must pin the verified PyPI publisher action")
     return errors

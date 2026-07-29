@@ -8,16 +8,16 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 
 > RigorGraph checks workflow integrity and traceability. `VERIFIED` means accepted by the recorded workflow; it does not mean absolute truth, formal certification, peer review, or expert consensus.
 
-> **1.0 release candidate:** RigorGraph 1.0 keeps its public interfaces additive and ships only when deterministic quality gates pass. External use is evidence, not permission to weaken or block those gates. Do not include private research data in public feedback.
+> **RigorGraph 1.0:** Public interfaces remain additive throughout 1.x. External use is evidence, not permission to weaken the deterministic quality gates. Do not include private research data in public feedback.
 
 ![RigorGraph claim-evidence flow](assets/rigorgraph-flow.svg)
 
 ## Quick start
 
-RigorGraph requires Python 3.11 or newer and no API key. After the approved PyPI RC publish, install the release candidate with:
+RigorGraph requires Python 3.11 or newer and no API key. Install the stable release with:
 
 ```bash
-python -m pip install --pre "rigorgraph==1.0.0rc2"
+python -m pip install "rigorgraph==1.0.0"
 rigorgraph demo --scenario math --open
 ```
 
@@ -96,7 +96,7 @@ The repository includes four focused [Agent Skills](skills/):
 - `adversarial-verify`
 - `release-audit`
 
-It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0-rc.2.zip`; extract it, then install its isolated marketplace:
+It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0.zip`; extract it, then install its isolated marketplace:
 
 ```console
 codex plugin marketplace add PATH_TO_EXTRACTED_BUNDLE
@@ -113,13 +113,13 @@ steps:
   - uses: actions/setup-python@v7
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@v1.0.0-rc.2
+  - uses: f0909172434/rigorgraph@v1.0.0
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. The moving `@v1` tag is created only after the stable release passes the RC gates.
+The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. Use immutable `@v1.0.0` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
 
 ## Develop from source
 
