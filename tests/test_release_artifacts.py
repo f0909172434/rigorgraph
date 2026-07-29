@@ -47,3 +47,15 @@ def test_release_versions_are_consistent() -> None:
     assert manifest["version"] == "1.0.0-rc.2"
     assert 'test "${GITHUB_REF_NAME}" = "v1.0.0-rc.2"' in workflow
     assert "pypa/gh-action-pypi-publish@v1.14.2" in workflow
+
+
+def test_registry_smoke_covers_supported_release_endpoints() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "registry-smoke.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "workflow_dispatch:" in workflow
+    assert "--index-url https://pypi.org/simple" in workflow
+    assert '"rigorgraph==${{ env.RIGORGRAPH_VERSION }}"' in workflow
+    assert "os: [ubuntu-latest, macos-latest, windows-latest]" in workflow
+    assert 'python: ["3.11", "3.14"]' in workflow
+    assert "rigorgraph audit registry-smoke --json" in workflow
