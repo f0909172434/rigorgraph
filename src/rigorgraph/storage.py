@@ -119,6 +119,20 @@ def _atomic_write(path: Path, content: str) -> None:
         temporary_path.unlink(missing_ok=True)
 
 
+def atomic_write_bytes(path: Path, content: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
 @contextmanager
 def project_lock(root: Path, timeout: float = 5.0) -> Iterator[None]:
     lock_path = root.resolve() / STATE_DIR / ".lock"

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 
+from pydantic import ValidationError
+
 from rigorgraph.integrity import claim_snapshot_sha256, sha256_file
 from rigorgraph.models import (
     AuditIssue,
@@ -10,6 +12,7 @@ from rigorgraph.models import (
     ClaimStatus,
     ClaimType,
     Evidence,
+    EvidenceBundle,
     EvidenceType,
     ProjectData,
     Verification,
@@ -175,6 +178,21 @@ def _audit_evidence_files(project: ProjectData) -> list[AuditIssue]:
                 issues.append(
                     _issue("RG_HASH_MISMATCH", "issue.hash_mismatch", item.id, path=item.path)
                 )
+            elif (
+                isinstance(item.metadata.get("bundle"), dict)
+                and item.metadata["bundle"].get("format") == "rigorgraph-evidence-bundle"
+            ):
+                try:
+                    EvidenceBundle.model_validate_json(evidence_path.read_bytes())
+                except (OSError, ValidationError, ValueError) as exc:
+                    issues.append(
+                        _issue(
+                            "RG_BUNDLE_INVALID",
+                            "issue.bundle_invalid",
+                            item.id,
+                            detail=str(exc),
+                        )
+                    )
         except ValueError:
             issues.append(_issue("RG_PATH_ESCAPE", "issue.path_escape", item.id, path=item.path))
         except (OSError, RuntimeError) as exc:

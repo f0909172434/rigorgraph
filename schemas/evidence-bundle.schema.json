@@ -1,0 +1,487 @@
+{
+  "$defs": {
+    "EvidenceArtifact": {
+      "additionalProperties": true,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 0,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "path",
+        "size",
+        "sha256"
+      ],
+      "title": "EvidenceArtifact",
+      "type": "object"
+    },
+    "EvidenceProducer": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "EvidenceProducer",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "anyOf": [
+            {
+              "pattern": "^[a-fA-F0-9]{40,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commit"
+        },
+        "event": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "repository": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repository"
+        },
+        "run_attempt": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Run Attempt"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Run Id"
+        },
+        "workflow_ref": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workflow Ref"
+        }
+      },
+      "title": "EvidenceProvenance",
+      "type": "object"
+    },
+    "EvidenceType": {
+      "enum": [
+        "proof",
+        "source",
+        "dataset",
+        "computation",
+        "benchmark_run",
+        "human_review"
+      ],
+      "title": "EvidenceType",
+      "type": "string"
+    },
+    "HonestCIFinding": {
+      "additionalProperties": true,
+      "properties": {
+        "code": {
+          "pattern": "^HCI\\d{3}_[A-Z0-9_]+$",
+          "title": "Code",
+          "type": "string"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File"
+        },
+        "line": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Report"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "title": "HonestCIFinding",
+      "type": "object"
+    },
+    "HonestCIReport": {
+      "additionalProperties": true,
+      "properties": {
+        "baselineTests": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baselinetests"
+        },
+        "dropPercent": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Droppercent"
+        },
+        "errors": {
+          "minimum": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "failures": {
+          "minimum": 0,
+          "title": "Failures",
+          "type": "integer"
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "skipped": {
+          "minimum": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "tests": {
+          "minimum": 0,
+          "title": "Tests",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tests",
+        "failures",
+        "errors",
+        "skipped",
+        "name",
+        "files"
+      ],
+      "title": "HonestCIReport",
+      "type": "object"
+    },
+    "HonestCIResult": {
+      "additionalProperties": true,
+      "properties": {
+        "baselineTests": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baselinetests"
+        },
+        "dropPercent": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Droppercent"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/HonestCIFinding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "reports": {
+          "items": {
+            "$ref": "#/$defs/HonestCIReport"
+          },
+          "title": "Reports",
+          "type": "array"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "title": "Schemaversion",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "totals": {
+          "$ref": "#/$defs/HonestCITotals"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "status",
+        "totals",
+        "reports",
+        "findings"
+      ],
+      "title": "HonestCIResult",
+      "type": "object"
+    },
+    "HonestCITotals": {
+      "additionalProperties": true,
+      "properties": {
+        "errors": {
+          "minimum": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "failures": {
+          "minimum": 0,
+          "title": "Failures",
+          "type": "integer"
+        },
+        "skipped": {
+          "minimum": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "tests": {
+          "minimum": 0,
+          "title": "Tests",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tests",
+        "failures",
+        "errors",
+        "skipped"
+      ],
+      "title": "HonestCITotals",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/f0909172434/rigorgraph/schemas/evidence-bundle.schema.json",
+  "additionalProperties": true,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/EvidenceArtifact"
+      },
+      "minItems": 1,
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "evidence_type": {
+      "$ref": "#/$defs/EvidenceType"
+    },
+    "format": {
+      "const": "rigorgraph-evidence-bundle",
+      "title": "Format",
+      "type": "string"
+    },
+    "producer": {
+      "$ref": "#/$defs/EvidenceProducer"
+    },
+    "profile": {
+      "const": "honest-ci/check-result-v1",
+      "title": "Profile",
+      "type": "string"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvidenceProvenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "result": {
+      "$ref": "#/$defs/HonestCIResult"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "scope": {
+      "minLength": 1,
+      "title": "Scope",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "profile",
+    "evidence_type",
+    "title",
+    "scope",
+    "created_at",
+    "producer",
+    "artifacts",
+    "result"
+  ],
+  "title": "EvidenceBundle",
+  "type": "object"
+}

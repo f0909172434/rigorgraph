@@ -24,6 +24,16 @@ type Evidence = {
   uri?: string;
   locator?: string;
   sha256?: string;
+  metadata?: {
+    bundle?: {
+      format: string;
+      schema_version: number;
+      profile: string;
+      producer: { name: string; version: string };
+      provenance?: { commit?: string } | null;
+      result_status?: string | null;
+    };
+  };
 };
 type AuditIssue = {
   code: string;
@@ -307,7 +317,13 @@ function App() {
                 <dt>{t("viewer.locator")}</dt><dd>{item.locator || "—"}</dd>
                 <dt>{t("viewer.location")}</dt><dd>{item.path || item.uri || "—"}</dd>
                 <dt>{t("viewer.hash")}</dt><dd className="hash">{item.sha256 || "—"}</dd>
+                {item.metadata?.bundle && <>
+                  <dt>{t("viewer.bundle_profile")}</dt><dd>{item.metadata.bundle.profile}</dd>
+                  <dt>{t("viewer.bundle_result")}</dt><dd>{item.metadata.bundle.result_status || "—"}</dd>
+                  <dt>{t("viewer.source_commit")}</dt><dd className="hash">{item.metadata.bundle.provenance?.commit || "—"}</dd>
+                </>}
               </dl>
+              {item.metadata?.bundle && <p className="evidence-boundary">{t("viewer.bundle_boundary")}</p>}
             </article>
           ))}
         </section>

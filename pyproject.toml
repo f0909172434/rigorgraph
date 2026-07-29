@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rigorgraph"
-version = "0.1.0b1"
+version = "1.0.0rc1"
 description = "Turn AI research into auditable claim-evidence graphs."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,7 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Wang Zhi-Kai" }]
 keywords = ["research", "verification", "evidence", "ai-agents", "reproducibility"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
