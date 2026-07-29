@@ -14,7 +14,7 @@ def test_readmes_link_all_languages_and_quickstart() -> None:
         content = (ROOT / name).read_text(encoding="utf-8")
         assert all(link in content for link in names)
         assert "rigorgraph" in content.lower()
-        assert "1.0.0rc2" in content
+        assert "1.0.0" in content
         assert "docs/EVIDENCE_BUNDLES.md" in content
         assert "rigorgraph quickstart" in content
 
