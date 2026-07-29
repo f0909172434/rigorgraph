@@ -17,7 +17,7 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 Python 3.11 以降が必要です。API キーは不要です。公開ベータ期間中はタグ付きソース版をインストールしてください。`pip install rigorgraph` は、PyPI への公開が承認された後に利用可能になります。
 
 ```bash
-python -m pip install --pre "rigorgraph==1.0.0rc1"
+python -m pip install --pre "rigorgraph==1.0.0rc2"
 rigorgraph --lang ja demo --scenario math --open
 ```
 

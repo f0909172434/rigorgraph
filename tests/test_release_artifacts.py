@@ -41,6 +41,9 @@ def test_release_versions_are_consistent() -> None:
     package = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     module = (ROOT / "src" / "rigorgraph" / "__init__.py").read_text(encoding="utf-8")
     manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    assert 'version = "1.0.0rc1"' in package
-    assert '__version__ = "1.0.0rc1"' in module
-    assert manifest["version"] == "1.0.0-rc.1"
+    workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert 'version = "1.0.0rc2"' in package
+    assert '__version__ = "1.0.0rc2"' in module
+    assert manifest["version"] == "1.0.0-rc.2"
+    assert 'test "${GITHUB_REF_NAME}" = "v1.0.0-rc.2"' in workflow
+    assert "pypa/gh-action-pypi-publish@v1.14.2" in workflow

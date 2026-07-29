@@ -17,7 +17,7 @@ RigorGraph is a local-first CLI, offline report, GitHub Action, and skill pack f
 RigorGraph requires Python 3.11 or newer and no API key. After the approved PyPI RC publish, install the release candidate with:
 
 ```bash
-python -m pip install --pre "rigorgraph==1.0.0rc1"
+python -m pip install --pre "rigorgraph==1.0.0rc2"
 rigorgraph demo --scenario math --open
 ```
 
@@ -96,7 +96,7 @@ The repository includes four focused [Agent Skills](skills/):
 - `adversarial-verify`
 - `release-audit`
 
-It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0-rc.1.zip`; extract it, then install its isolated marketplace:
+It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0-rc.2.zip`; extract it, then install its isolated marketplace:
 
 ```console
 codex plugin marketplace add PATH_TO_EXTRACTED_BUNDLE
@@ -113,7 +113,7 @@ steps:
   - uses: actions/setup-python@v7
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@v1.0.0-rc.1
+  - uses: f0909172434/rigorgraph@v1.0.0-rc.2
     with:
       path: .
       fail-on: error

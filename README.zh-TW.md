@@ -17,7 +17,7 @@ RigorGraph 是本機優先的 CLI、離線報告、GitHub Action 與技能包，
 需要 Python 3.11 以上，不需要 API 金鑰。核准發布 PyPI RC 後，請安裝：
 
 ```bash
-python -m pip install --pre "rigorgraph==1.0.0rc1"
+python -m pip install --pre "rigorgraph==1.0.0rc2"
 rigorgraph --lang zh-TW demo --scenario math --open
 ```
 
