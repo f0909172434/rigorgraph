@@ -13,9 +13,10 @@ from export_schemas import expected_schemas
 from validate_locales import validate as validate_locales
 
 ROOT = Path(__file__).resolve().parents[1]
-PYTHON_VERSION = "1.0.0rc1"
-PLUGIN_VERSION = "1.0.0-rc.1"
-RELEASE_TAG = "v1.0.0-rc.1"
+PYTHON_VERSION = "1.0.0rc2"
+PLUGIN_VERSION = "1.0.0-rc.2"
+RELEASE_TAG = "v1.0.0-rc.2"
+PYPI_PUBLISH_ACTION = "pypa/gh-action-pypi-publish@v1.14.2"
 
 
 def check_manifest() -> list[str]:
@@ -164,12 +165,18 @@ def check_release_surfaces() -> list[str]:
     for required in (
         ROOT / "CHANGELOG.md",
         ROOT / "docs" / "EVIDENCE_BUNDLES.md",
+        ROOT / "launch" / f"RELEASE_NOTES-{PLUGIN_VERSION}.md",
         ROOT / "schemas" / "evidence-bundle.schema.json",
     ):
         if not required.is_file():
             errors.append(f"release surface missing: {required.relative_to(ROOT)}")
     if RELEASE_TAG not in (ROOT / "README.md").read_text(encoding="utf-8"):
         errors.append("English README must pin the release candidate Action tag")
+    workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    if RELEASE_TAG not in workflow:
+        errors.append("release workflow must require the release candidate tag")
+    if PYPI_PUBLISH_ACTION not in workflow:
+        errors.append("release workflow must pin the verified PyPI publisher action")
     return errors
 
 
