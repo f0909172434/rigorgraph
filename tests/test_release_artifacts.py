@@ -45,6 +45,7 @@ def test_release_versions_are_consistent() -> None:
     assert 'version = "1.0.0"' in package
     assert '__version__ = "1.0.0"' in module
     assert manifest["version"] == "1.0.0"
+    assert '      - "v*.*.*"' in workflow
     assert 'test "${GITHUB_REF_NAME}" = "v1.0.0"' in workflow
     assert "pypa/gh-action-pypi-publish@v1.14.2" in workflow
 
