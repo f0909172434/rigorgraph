@@ -62,6 +62,9 @@ def test_release_versions_are_consistent() -> None:
     )
     assert "78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e" not in workflow
     assert "a892a5a61159132606e93a2fa6f4358831b04d26" not in workflow
+    assert 'if [[ "${GITHUB_REF_NAME}" != *-* ]]' in workflow
+    assert 'major_alias="v${release_version%%.*}"' in workflow
+    assert 'git/refs/tags/${major_alias}' in workflow
 
 
 def test_registry_smoke_covers_supported_release_endpoints() -> None:
