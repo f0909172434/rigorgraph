@@ -6,12 +6,15 @@ Thank you for helping make research records more auditable.
 
 ```bash
 python -m pip install -e ".[dev]"
-cd frontend && npm install && npm run build && cd ..
-pytest
-ruff check .
+cd frontend && npm ci && npm run build && cd ..
+python -m pytest
+python -m ruff check .
 python scripts/validate_locales.py
-python scripts/release_check.py
+python scripts/export_schemas.py --check
+python scripts/release_check.py --full
 ```
+
+The full release check validates the plugin manifest and all four bundled skills. See [SECURITY.md](SECURITY.md) and the [threat model](docs/THREAT_MODEL.md) before changing parsers, path handling, report embedding, workflow permissions, dependencies, or release automation.
 
 ## Evidence integrity
 
@@ -33,4 +36,4 @@ Run `python scripts/validate_locales.py` before submitting a change.
 
 ## Pull requests
 
-Keep changes scoped, include tests, and explain which evidence or validation invariant changes. All CI checks must pass before merge.
+Keep changes scoped, include tests, and explain which evidence or validation invariant changes. All CI checks and the stable `ci-gate` must pass before merge.
