@@ -8,13 +8,13 @@ RigorGraph 是本機優先的 CLI、離線報告、GitHub Action 與技能包，
 
 > RigorGraph 檢查工作流程完整性與可追溯性。`VERIFIED` 只表示已被記錄的工作流程接受，不代表絕對真理、形式認證、同儕審查或專家共識。
 
-> **RigorGraph 1.0：**1.x 的公開介面維持向前相容的加法變更。外部使用是證據，不是降低確定性品質閘門的理由。公開回饋請勿包含私人研究資料。
+> **產品狀態：公開測試版。** 已發布的 1.x 公開介面維持向前相容的加法變更。外部使用是證據，不是降低確定性品質閘門的理由。公開回饋請勿包含私人研究資料。
 
 ![RigorGraph 命題—證據流程](assets/rigorgraph-flow.svg)
 
 ## 快速開始
 
-需要 Python 3.11 以上，不需要 API 金鑰。請安裝正式版：
+需要 Python 3.11 以上，不需要 API 金鑰。請安裝已發布的 1.0.0 套件；產品仍是公開測試版：
 
 ```bash
 python -m pip install "rigorgraph==1.0.0"
@@ -91,4 +91,4 @@ rigorgraph --lang zh-TW quickstart 我的研究 --name "我的研究專案" --au
 
 RigorGraph 1.0 可用 `rigorgraph evidence import BUNDLE.json --claim ID` 保存 HonestCI 等工具產生的版本化證據包；只允許連結 `DRAFT` 或 `PROPOSED`，且絕不自動驗證命題。詳細合約請參閱 [Evidence bundles](docs/EVIDENCE_BUNDLES.md)。
 
-原始碼開發、GitHub Action 與貢獻方式請參閱 [英文 README](README.md) 與 [CONTRIBUTING.md](CONTRIBUTING.md)；發布條件請參閱 [發布政策](docs/RELEASE_POLICY.md)。MIT License。
+原始碼開發、GitHub Action 與貢獻方式請參閱 [英文 README](README.md) 與 [CONTRIBUTING.md](CONTRIBUTING.md)；安全邊界請參閱 [安全政策](SECURITY.md) 與 [威脅模型](docs/THREAT_MODEL.md)；發布條件請參閱 [發布政策](docs/RELEASE_POLICY.md)。MIT License。

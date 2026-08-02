@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import tomllib
 import zipfile
 from pathlib import Path
 
@@ -38,16 +39,29 @@ def test_codex_marketplace_bundle_is_installable_and_deterministic(tmp_path) -> 
 
 
 def test_release_versions_are_consistent() -> None:
-    package = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    package_text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    package = tomllib.loads(package_text)
+    version = package["project"]["version"]
     module = (ROOT / "src" / "rigorgraph" / "__init__.py").read_text(encoding="utf-8")
     manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
     workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
-    assert 'version = "1.0.0"' in package
-    assert '__version__ = "1.0.0"' in module
-    assert manifest["version"] == "1.0.0"
+    assert 'Development Status :: 4 - Beta' in package["project"]["classifiers"]
+    assert f'__version__ = "{version}"' in module
+    assert manifest["version"] == version
     assert '      - "v*.*.*"' in workflow
-    assert 'test "${GITHUB_REF_NAME}" = "v1.0.0"' in workflow
-    assert "pypa/gh-action-pypi-publish@v1.14.2" in workflow
+    assert "pyproject.toml" in workflow
+    assert 'expected_tag="v${package_version}"' in workflow
+    assert f'test "${{GITHUB_REF_NAME}}" = "v{version}"' not in workflow
+    assert (
+        "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
+        in workflow
+    )
+    assert (
+        "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+        in workflow
+    )
+    assert "78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e" not in workflow
+    assert "a892a5a61159132606e93a2fa6f4358831b04d26" not in workflow
 
 
 def test_registry_smoke_covers_supported_release_endpoints() -> None:

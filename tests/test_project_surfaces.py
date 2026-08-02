@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import yaml
@@ -36,6 +37,46 @@ def test_action_manifest_is_valid_composite_yaml() -> None:
     assert isinstance(manifest, dict)
     assert manifest["runs"]["using"] == "composite"
     assert manifest["runs"]["steps"]
+
+
+def test_remote_actions_are_pinned_to_full_commits_with_version_comments() -> None:
+    paths = [ROOT / "action.yml", *(ROOT / ".github" / "workflows").glob("*.y*ml")]
+    pattern = re.compile(r"^\s*-?\s*uses:\s*([^\s#]+)(?:\s+#\s*(\S+))?\s*$")
+    found = 0
+    for path in paths:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            match = pattern.match(line)
+            if not match or match.group(1).startswith("./"):
+                continue
+            found += 1
+            target, version_comment = match.groups()
+            assert re.fullmatch(r"[^@]+@[0-9a-f]{40}", target), (path, line)
+            assert version_comment and re.fullmatch(r"v\d+(?:\.\d+){0,2}", version_comment), (
+                path,
+                line,
+            )
+    assert found >= 10
+
+
+def test_security_automation_and_stable_ci_gate_are_present() -> None:
+    dependabot = yaml.safe_load((ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8"))
+    ecosystems = {entry["package-ecosystem"] for entry in dependabot["updates"]}
+    assert ecosystems == {"pip", "npm", "github-actions"}
+
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "  ci-gate:" in ci
+    assert "name: ci-gate" in ci
+    assert "needs: [python, frontend, quality, action]" in ci
+
+    codeql = (ROOT / ".github" / "workflows" / "codeql.yml").read_text(encoding="utf-8")
+    assert "language: [python, javascript-typescript]" in codeql
+    assert "security-events: write" in codeql
+
+    security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    threat_model = (ROOT / "docs" / "THREAT_MODEL.md").read_text(encoding="utf-8")
+    assert "private GitHub Security Advisory" in security
+    assert "Data and credential boundary" in security
+    assert "Explicit non-goals" in threat_model
 
 
 def test_historical_beta_feedback_form_and_release_notes_remain_available() -> None:

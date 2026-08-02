@@ -1,6 +1,6 @@
 # RigorGraph release policy
 
-RigorGraph 1.x public interfaces are additive. Required Evidence Bundle v1 fields, stable audit codes, CLI JSON fields, and GitHub Action inputs and outputs are not removed or redefined in a 1.x release. Breaking changes require a new major or bundle schema version.
+RigorGraph remains a public-beta product while its 1.x public interfaces are additive. Required Evidence Bundle v1 fields, stable audit codes, CLI JSON fields, and GitHub Action inputs and outputs are not removed or redefined in a 1.x release. Breaking changes require a new major or bundle schema version.
 
 ## Hard gates
 

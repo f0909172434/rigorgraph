@@ -1,6 +1,6 @@
-# Beta release policy
+# Public-beta policy
 
-RigorGraph is maintained by one person with AI assistance. Beta releases are governed by reproducible product evidence, not by waiting for a volunteer panel.
+RigorGraph remains a public-beta product while its published 1.x interfaces follow the additive compatibility policy in [RELEASE_POLICY.md](RELEASE_POLICY.md). It is maintained by one person with AI assistance. Beta releases are governed by reproducible product evidence, not by waiting for a volunteer panel.
 
 ## Release gates
 

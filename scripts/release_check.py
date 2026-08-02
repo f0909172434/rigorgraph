@@ -13,10 +13,22 @@ from export_schemas import expected_schemas
 from validate_locales import validate as validate_locales
 
 ROOT = Path(__file__).resolve().parents[1]
-PYTHON_VERSION = "1.0.0"
-PLUGIN_VERSION = "1.0.0"
-RELEASE_TAG = "v1.0.0"
-PYPI_PUBLISH_ACTION = "pypa/gh-action-pypi-publish@v1.14.2"
+PROJECT_METADATA = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+PYTHON_VERSION = str(PROJECT_METADATA["project"]["version"])
+PLUGIN_VERSION = PYTHON_VERSION
+RELEASE_TAG = f"v{PYTHON_VERSION}"
+PYPI_PUBLISH_ACTION = (
+    "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
+)
+ATTEST_BUILD_PROVENANCE_ACTION = (
+    "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+)
+KNOWN_NON_COMMIT_ACTION_OBJECTS = {
+    "78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e": "annotated actions/attest-build-provenance v4 tag",
+    "a892a5a61159132606e93a2fa6f4358831b04d26": "annotated pypa/gh-action-pypi-publish v1.14.2 tag",
+    "bce182f857edf1feab116e9795a3393d21977282": "annotated github/codeql-action v4 tag",
+}
+REMOTE_ACTION = re.compile(r"^\s*-?\s*uses:\s*([^\s#]+)(?:\s+#\s*(\S+))?\s*$")
 
 
 def check_manifest() -> list[str]:
@@ -62,6 +74,37 @@ def check_action_manifest() -> list[str]:
         errors.append("action manifest must declare composite runs")
     elif not isinstance(runs.get("steps"), list) or not runs["steps"]:
         errors.append("action manifest must declare at least one step")
+    return errors
+
+
+def check_pinned_actions() -> list[str]:
+    errors: list[str] = []
+    paths = [ROOT / "action.yml", *(ROOT / ".github" / "workflows").glob("*.y*ml")]
+    for path in sorted(paths):
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            match = REMOTE_ACTION.match(line)
+            if not match:
+                continue
+            target, version_comment = match.groups()
+            if target.startswith("./"):
+                continue
+            if "@" not in target:
+                errors.append(f"{path.relative_to(ROOT)}:{line_number}: action has no ref")
+                continue
+            _, ref = target.rsplit("@", 1)
+            if not re.fullmatch(r"[0-9a-f]{40}", ref):
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{line_number}: action must use a full commit SHA"
+                )
+            elif ref in KNOWN_NON_COMMIT_ACTION_OBJECTS:
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{line_number}: action ref is a known non-commit "
+                    f"object ({KNOWN_NON_COMMIT_ACTION_OBJECTS[ref]})"
+                )
+            if not version_comment or not re.fullmatch(r"v\d+(?:\.\d+){0,2}", version_comment):
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{line_number}: action needs a version comment"
+                )
     return errors
 
 
@@ -156,9 +199,11 @@ def check_release_surfaces() -> list[str]:
         if "External use is evidence, not permission" not in policy:
             errors.append("release policy must separate external evidence from permission")
 
-    package = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    if package.get("project", {}).get("version") != PYTHON_VERSION:
+    if PROJECT_METADATA.get("project", {}).get("version") != PYTHON_VERSION:
         errors.append("Python package version must match the release")
+    classifiers = PROJECT_METADATA.get("project", {}).get("classifiers", [])
+    if "Development Status :: 4 - Beta" not in classifiers:
+        errors.append("Python package metadata must identify the public-beta status")
     module = (ROOT / "src" / "rigorgraph" / "__init__.py").read_text(encoding="utf-8")
     if f'__version__ = "{PYTHON_VERSION}"' not in module:
         errors.append("runtime version must match the release")
@@ -173,10 +218,19 @@ def check_release_surfaces() -> list[str]:
     if RELEASE_TAG not in (ROOT / "README.md").read_text(encoding="utf-8"):
         errors.append("English README must pin the release Action tag")
     workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
-    if RELEASE_TAG not in workflow:
-        errors.append("release workflow must require the release tag")
+    if "pyproject.toml" not in workflow or 'expected_tag="v${package_version}"' not in workflow:
+        errors.append("release workflow must derive the expected tag from pyproject.toml")
     if PYPI_PUBLISH_ACTION not in workflow:
         errors.append("release workflow must pin the verified PyPI publisher action")
+    if ATTEST_BUILD_PROVENANCE_ACTION not in workflow:
+        errors.append("release workflow must pin the peeled provenance attestation commit")
+    for required in (
+        ROOT / "assets" / "rigorgraph-report.png",
+        ROOT / "SECURITY.md",
+        ROOT / "docs" / "THREAT_MODEL.md",
+    ):
+        if not required.is_file():
+            errors.append(f"adoption surface missing: {required.relative_to(ROOT)}")
     return errors
 
 
@@ -203,6 +257,7 @@ def main() -> int:
         validate_locales()
         + check_manifest()
         + check_action_manifest()
+        + check_pinned_actions()
         + check_skills()
         + check_viewer()
         + check_readmes()

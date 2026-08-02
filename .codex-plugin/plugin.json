@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Verification-first research workflows and auditable claim-evidence graphs for AI agents.",
   "author": {
-    "name": "Wang Zhi-Kai",
+    "name": "Wang Chih Kai",
     "url": "https://github.com/f0909172434"
   },
   "homepage": "https://github.com/f0909172434/rigorgraph",
@@ -15,7 +15,7 @@
     "displayName": "RigorGraph",
     "shortDescription": "Audit claims, evidence, and research releases.",
     "longDescription": "Capture research claims, attach scoped evidence, run independent verification, and audit releases without treating model consensus or numerical scans as proof.",
-    "developerName": "Wang Zhi-Kai",
+    "developerName": "Wang Chih Kai",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
     "websiteURL": "https://github.com/f0909172434/rigorgraph",
