@@ -6,7 +6,13 @@ import pytest
 from pydantic import ValidationError
 
 from rigorgraph.models import Evidence, EvidenceBundle
-from rigorgraph.storage import ProjectLoadError, ProjectLockError, load_project, project_lock
+from rigorgraph.storage import (
+    ProjectLoadError,
+    ProjectLockError,
+    initialize_project,
+    load_project,
+    project_lock,
+)
 
 
 def test_evidence_requires_real_location_and_digest() -> None:
@@ -96,6 +102,42 @@ def test_project_lock_rejects_second_writer(tmp_path) -> None:
         with pytest.raises(ProjectLockError):
             with project_lock(tmp_path, timeout=0):
                 pass
+
+
+def test_load_rejects_symlinked_state_directory(tmp_path) -> None:
+    project = tmp_path / "project"
+    external = tmp_path / "external"
+    initialize_project(external, "external", "en")
+    project.mkdir()
+    (project / "rigorgraph.yaml").write_text(
+        "version: 1\nname: project\nlanguage: en\nfail_on: error\n",
+        encoding="utf-8",
+    )
+    try:
+        (project / ".rigorgraph").symlink_to(external / ".rigorgraph", target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"symbolic links are unavailable: {exc}")
+
+    with pytest.raises(ProjectLoadError, match="symbolic link"):
+        load_project(project)
+    with pytest.raises(ProjectLockError, match="symbolic link"):
+        with project_lock(project):
+            pass
+
+
+def test_load_rejects_symlinked_state_file(tmp_path) -> None:
+    initialize_project(tmp_path, "project", "en")
+    claims = tmp_path / ".rigorgraph" / "claims.jsonl"
+    external = tmp_path / "external-claims.jsonl"
+    external.write_text("", encoding="utf-8")
+    claims.unlink()
+    try:
+        claims.symlink_to(external)
+    except OSError as exc:
+        pytest.skip(f"symbolic links are unavailable: {exc}")
+
+    with pytest.raises(ProjectLoadError, match="symbolic link"):
+        load_project(tmp_path)
 
 
 def test_json_machine_fields_remain_english(tmp_path) -> None:

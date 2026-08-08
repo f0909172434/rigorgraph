@@ -34,7 +34,45 @@ class ProjectLockError(RuntimeError):
     pass
 
 
+def _unsafe_state_path(path: Path, detail: str) -> ProjectLoadError:
+    return ProjectLoadError("RG_PATH_UNSAFE", path, detail)
+
+
+def _state_directory(root: Path, *, create: bool = False) -> Path:
+    root = root.resolve()
+    state = root / STATE_DIR
+    if state.is_symlink():
+        raise _unsafe_state_path(state, "state directory must not be a symbolic link")
+    if create:
+        state.mkdir(parents=True, exist_ok=True)
+    if state.exists() and not state.is_dir():
+        raise _unsafe_state_path(state, "state path must be a directory")
+    resolved = state.resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise _unsafe_state_path(state, "state directory escapes the project") from exc
+    return resolved
+
+
+def _safe_state_file(path: Path) -> Path:
+    if path.parent.name != STATE_DIR:
+        return path
+    root = path.parent.parent.resolve()
+    state = _state_directory(root)
+    candidate = state / path.name
+    if candidate.is_symlink():
+        raise _unsafe_state_path(candidate, "state file must not be a symbolic link")
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise _unsafe_state_path(candidate, "state file escapes the project") from exc
+    return candidate
+
+
 def _load_jsonl(path: Path, model: type[T]) -> list[T]:
+    path = _safe_state_file(path)
     if not path.exists():
         raise ProjectLoadError("RG_FILE_MISSING", path, "required state file is missing")
     records: list[T] = []
@@ -61,7 +99,7 @@ def load_project(root: Path) -> ProjectData:
         config = ProjectConfig.model_validate(config_payload)
     except (yaml.YAMLError, ValidationError, ValueError) as exc:
         raise ProjectLoadError("RG_CONFIG_INVALID", config_path, str(exc)) from exc
-    state = root / STATE_DIR
+    state = _state_directory(root)
     return ProjectData(
         root=root,
         config=config,
@@ -73,8 +111,8 @@ def load_project(root: Path) -> ProjectData:
 
 def initialize_project(root: Path, name: str, language: str) -> list[Path]:
     root.mkdir(parents=True, exist_ok=True)
-    state = root / STATE_DIR
-    state.mkdir(parents=True, exist_ok=True)
+    root = root.resolve()
+    state = _state_directory(root, create=True)
     files = {
         root / "rigorgraph.yaml": yaml.safe_dump(
             {"version": 1, "name": name, "language": language, "fail_on": "error"},
@@ -94,6 +132,7 @@ def initialize_project(root: Path, name: str, language: str) -> list[Path]:
 
 
 def append_record(path: Path, record: BaseModel) -> None:
+    path = _safe_state_file(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     existing = path.read_text(encoding="utf-8") if path.exists() else ""
     content = existing + record.model_dump_json(exclude_none=True) + "\n"
@@ -101,11 +140,13 @@ def append_record(path: Path, record: BaseModel) -> None:
 
 
 def write_records(path: Path, records: list[BaseModel]) -> None:
+    path = _safe_state_file(path)
     content = "".join(record.model_dump_json(exclude_none=True) + "\n" for record in records)
     _atomic_write(path, content)
 
 
 def _atomic_write(path: Path, content: str) -> None:
+    path = _safe_state_file(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     temporary_path = Path(temporary)
@@ -135,8 +176,13 @@ def atomic_write_bytes(path: Path, content: bytes) -> None:
 
 @contextmanager
 def project_lock(root: Path, timeout: float = 5.0) -> Iterator[None]:
-    lock_path = root.resolve() / STATE_DIR / ".lock"
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        state = _state_directory(root, create=True)
+    except ProjectLoadError as exc:
+        raise ProjectLockError(exc.detail) from exc
+    lock_path = state / ".lock"
+    if lock_path.is_symlink():
+        raise ProjectLockError(f"lock file must not be a symbolic link: {lock_path}")
     deadline = time.monotonic() + timeout
     descriptor: int | None = None
     while descriptor is None:
