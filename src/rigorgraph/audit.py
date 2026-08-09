@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from pydantic import ValidationError
 
+from rigorgraph.bundles import evidence_from_bundle
 from rigorgraph.integrity import claim_snapshot_sha256, sha256_file
 from rigorgraph.models import (
     AuditIssue,
@@ -174,7 +175,9 @@ def _audit_evidence_files(project: ProjectData) -> list[AuditIssue]:
                         path=item.path,
                     )
                 )
-            elif sha256_file(evidence_path).lower() != item.sha256.lower():
+                continue
+            actual_digest = sha256_file(evidence_path)
+            if actual_digest.lower() != item.sha256.lower():
                 issues.append(
                     _issue("RG_HASH_MISMATCH", "issue.hash_mismatch", item.id, path=item.path)
                 )
@@ -183,7 +186,22 @@ def _audit_evidence_files(project: ProjectData) -> list[AuditIssue]:
                 and item.metadata["bundle"].get("format") == "rigorgraph-evidence-bundle"
             ):
                 try:
-                    EvidenceBundle.model_validate_json(evidence_path.read_bytes())
+                    bundle = EvidenceBundle.model_validate_json(evidence_path.read_bytes())
+                    expected = evidence_from_bundle(
+                        bundle,
+                        record_id=item.id,
+                        relative_path=item.path,
+                        digest=actual_digest,
+                    )
+                    if item != expected:
+                        issues.append(
+                            _issue(
+                                "RG_BUNDLE_RECORD_MISMATCH",
+                                "issue.bundle_invalid",
+                                item.id,
+                                detail="evidence record does not match preserved bundle bytes",
+                            )
+                        )
                 except (OSError, ValidationError, ValueError) as exc:
                     issues.append(
                         _issue(

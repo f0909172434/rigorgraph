@@ -1,4 +1,4 @@
-# 王治凱 · Wang Zhi-Kai
+# 王治凱 · Wang Chih Kai
 
 Student researcher building verification-first tools for AI-assisted mathematics and technical research.
 

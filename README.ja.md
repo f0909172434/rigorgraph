@@ -8,13 +8,13 @@ RigorGraph は、研究上の主張、支持する証拠、独立検証者、未
 
 > RigorGraph はワークフローの完全性と追跡可能性を確認します。`VERIFIED` は記録されたワークフローで受理されたことを意味するだけで、絶対的な真理、形式認証、査読、専門家の合意を意味しません。
 
-> **RigorGraph 1.0：**1.x の公開インターフェースは前方互換な追加変更を維持します。外部利用は証拠であり、決定的な品質ゲートを弱める許可ではありません。公開フィードバックに非公開研究データを含めないでください。
+> **製品ステータス：公開ベータ。** 公開済みの 1.x インターフェースは前方互換な追加変更を維持します。外部利用は証拠であり、決定的な品質ゲートを弱める許可ではありません。公開フィードバックに非公開研究データを含めないでください。
 
 ![RigorGraph 主張—証拠フロー](assets/rigorgraph-flow.svg)
 
 ## クイックスタート
 
-Python 3.11 以降が必要です。API キーは不要です。安定版をインストールしてください。
+Python 3.11 以降が必要です。API キーは不要です。公開済みの 1.0.0 パッケージをインストールしてください。製品は引き続き公開ベータです。
 
 ```bash
 python -m pip install "rigorgraph==1.0.0"
@@ -91,4 +91,4 @@ Codex では `$skill-installer` に `f0909172434/rigorgraph` からのインス�
 
 RigorGraph 1.0 は `rigorgraph evidence import BUNDLE.json --claim ID` で HonestCI などのバージョン付き証拠バンドルを保存できます。リンク先は `DRAFT` または `PROPOSED` に限られ、主張を自動検証しません。契約の詳細は [Evidence bundles](docs/EVIDENCE_BUNDLES.md) を参照してください。
 
-ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。リリース条件は [リリース方針](docs/RELEASE_POLICY.md) に記載しています。MIT License。
+ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。セキュリティ境界は [セキュリティポリシー](SECURITY.md) と [脅威モデル](docs/THREAT_MODEL.md)、リリース条件は [リリース方針](docs/RELEASE_POLICY.md) に記載しています。MIT License。

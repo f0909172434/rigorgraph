@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "rigorgraph"
 version = "1.0.0"
-description = "Turn AI research into auditable claim-evidence graphs."
+description = "Public-beta, local-first claim-evidence graphs for auditable AI research."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Wang Zhi-Kai" }]
+authors = [{ name = "Wang Chih Kai" }]
 keywords = ["research", "verification", "evidence", "ai-agents", "reproducibility"]
 classifiers = [
   "Development Status :: 4 - Beta",

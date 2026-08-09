@@ -14,14 +14,41 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+def _require_unicode_scalars(value: Any) -> None:
+    if isinstance(value, str):
+        if any("\ud800" <= character <= "\udfff" for character in value):
+            raise ValueError("strings must contain valid Unicode scalar values")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            _require_unicode_scalars(key)
+            _require_unicode_scalars(item)
+        return
+    if isinstance(value, (list, tuple, set, frozenset)):
+        for item in value:
+            _require_unicode_scalars(item)
+
+
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_unicode_scalars(cls, value: Any) -> Any:
+        _require_unicode_scalars(value)
+        return value
 
 
 class AdditiveModel(BaseModel):
     """A stable v1 wire model that permits future optional fields."""
 
     model_config = ConfigDict(extra="allow", str_strip_whitespace=True, populate_by_name=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_unicode_scalars(cls, value: Any) -> Any:
+        _require_unicode_scalars(value)
+        return value
 
 
 class ClaimType(StrEnum):

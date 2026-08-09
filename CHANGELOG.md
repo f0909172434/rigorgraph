@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add CodeQL, grouped Dependabot updates, full-SHA Action pinning, and a stable `ci-gate`.
+- Document the security, data, credential, and threat-model boundaries.
+- Clarify that RigorGraph remains a public-beta product while published 1.x interfaces follow additive compatibility.
+- Add an actual offline demo-report screenshot and clearer use, non-use, and interoperability guidance.
+- Derive release-tag validation from the package version instead of a hard-coded tag.
+
 ## 1.0.0
 
 - Promote the additive Evidence Bundle v1 and HonestCI profile after cross-project tests.
