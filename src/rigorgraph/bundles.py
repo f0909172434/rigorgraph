@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from rigorgraph.models import EvidenceBundle
+from rigorgraph.models import Evidence, EvidenceBundle
 
 
 class BundleLoadError(ValueError):
@@ -40,3 +40,23 @@ def bundle_metadata(bundle: EvidenceBundle) -> dict[str, object]:
             ],
         }
     }
+
+
+def evidence_from_bundle(
+    bundle: EvidenceBundle,
+    *,
+    record_id: str,
+    relative_path: str,
+    digest: str,
+) -> Evidence:
+    return Evidence(
+        id=record_id,
+        type=bundle.evidence_type,
+        title=bundle.title,
+        producer=f"{bundle.producer.name}@{bundle.producer.version}",
+        path=relative_path,
+        scope=bundle.scope,
+        sha256=digest,
+        created_at=bundle.created_at,
+        metadata=bundle_metadata(bundle),
+    )

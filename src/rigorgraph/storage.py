@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 import time
 from collections.abc import Iterator
@@ -38,11 +39,39 @@ def _unsafe_state_path(path: Path, detail: str) -> ProjectLoadError:
     return ProjectLoadError("RG_PATH_UNSAFE", path, detail)
 
 
+def is_link_or_reparse(path: Path) -> bool:
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        return False
+    return stat.S_ISLNK(metadata.st_mode) or bool(
+        getattr(metadata, "st_file_attributes", 0)
+        & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    )
+
+
+def project_config_path(root: Path) -> Path:
+    root = root.resolve()
+    candidate = root / "rigorgraph.yaml"
+    if is_link_or_reparse(candidate):
+        raise _unsafe_state_path(
+            candidate, "project config must not be a symbolic link or reparse point"
+        )
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise _unsafe_state_path(candidate, "project config escapes the project") from exc
+    return candidate
+
+
 def _state_directory(root: Path, *, create: bool = False) -> Path:
     root = root.resolve()
     state = root / STATE_DIR
-    if state.is_symlink():
-        raise _unsafe_state_path(state, "state directory must not be a symbolic link")
+    if is_link_or_reparse(state):
+        raise _unsafe_state_path(
+            state, "state directory must not be a symbolic link or reparse point"
+        )
     if create:
         state.mkdir(parents=True, exist_ok=True)
     if state.exists() and not state.is_dir():
@@ -61,8 +90,10 @@ def _safe_state_file(path: Path) -> Path:
     root = path.parent.parent.resolve()
     state = _state_directory(root)
     candidate = state / path.name
-    if candidate.is_symlink():
-        raise _unsafe_state_path(candidate, "state file must not be a symbolic link")
+    if is_link_or_reparse(candidate):
+        raise _unsafe_state_path(
+            candidate, "state file must not be a symbolic link or reparse point"
+        )
     resolved = candidate.resolve()
     try:
         resolved.relative_to(root)
@@ -89,7 +120,7 @@ def _load_jsonl(path: Path, model: type[T]) -> list[T]:
 
 def load_project(root: Path) -> ProjectData:
     root = root.resolve()
-    config_path = root / "rigorgraph.yaml"
+    config_path = project_config_path(root)
     if not config_path.exists():
         raise ProjectLoadError("RG_CONFIG_MISSING", config_path, "rigorgraph.yaml is missing")
     try:
@@ -97,7 +128,7 @@ def load_project(root: Path) -> ProjectData:
         if not isinstance(config_payload, dict):
             raise ValueError("rigorgraph.yaml must contain a mapping")
         config = ProjectConfig.model_validate(config_payload)
-    except (yaml.YAMLError, ValidationError, ValueError) as exc:
+    except (OSError, yaml.YAMLError, ValidationError, ValueError) as exc:
         raise ProjectLoadError("RG_CONFIG_INVALID", config_path, str(exc)) from exc
     state = _state_directory(root)
     return ProjectData(
@@ -181,8 +212,10 @@ def project_lock(root: Path, timeout: float = 5.0) -> Iterator[None]:
     except ProjectLoadError as exc:
         raise ProjectLockError(exc.detail) from exc
     lock_path = state / ".lock"
-    if lock_path.is_symlink():
-        raise ProjectLockError(f"lock file must not be a symbolic link: {lock_path}")
+    if is_link_or_reparse(lock_path):
+        raise ProjectLockError(
+            f"lock file must not be a symbolic link or reparse point: {lock_path}"
+        )
     deadline = time.monotonic() + timeout
     descriptor: int | None = None
     while descriptor is None:

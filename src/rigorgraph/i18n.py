@@ -10,6 +10,8 @@ from typing import Any
 
 import yaml
 
+from rigorgraph.storage import ProjectLoadError, project_config_path
+
 SUPPORTED_LANGUAGES = ("en", "zh-TW", "zh-CN", "ja")
 
 ALIASES = {
@@ -67,7 +69,10 @@ def system_language() -> str | None:
 
 
 def read_config_language(root: Path) -> str | None:
-    path = root / "rigorgraph.yaml"
+    try:
+        path = project_config_path(root)
+    except ProjectLoadError:
+        return None
     if not path.exists():
         return None
     try:

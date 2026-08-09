@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import re
 
+import pytest
+
 from rigorgraph.audit import audit_project
 from rigorgraph.demo import create_demo
 from rigorgraph.i18n import LanguageChoice
@@ -58,3 +60,20 @@ def test_report_handles_missing_dependency_without_external_edge(tmp_path) -> No
     generate_report(project, audit_project(project), output, LanguageChoice("en", "cli", True))
     html = output.read_text(encoding="utf-8")
     assert "RG_DEPENDENCY_MISSING" in html
+
+
+def test_report_rejects_symlink_destination_without_touching_target(tmp_path) -> None:
+    project_root = tmp_path / "project"
+    create_demo(project_root, "math", "en")
+    project = load_project(project_root)
+    outside = tmp_path / "outside.html"
+    outside.write_text("sentinel", encoding="utf-8")
+    output = tmp_path / "report.html"
+    try:
+        output.symlink_to(outside)
+    except OSError as exc:
+        pytest.skip(f"symbolic links are unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="symbolic link|reparse point"):
+        generate_report(project, audit_project(project), output, LanguageChoice("en", "cli", True))
+    assert outside.read_text(encoding="utf-8") == "sentinel"

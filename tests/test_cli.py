@@ -300,6 +300,31 @@ def test_import_bundle_copies_links_and_is_idempotent(tmp_path) -> None:
     assert len((root / ".rigorgraph" / "evidence.jsonl").read_text().splitlines()) == 1
 
 
+def test_import_bundle_rejects_mismatched_existing_record_and_audit_detects_tampering(
+    tmp_path,
+) -> None:
+    root = tmp_path / "project"
+    assert runner.invoke(app, ["init", str(root)]).exit_code == 0
+    bundle_file = tmp_path / "bundle.json"
+    raw = json.dumps(honest_bundle(), separators=(",", ":")).encode()
+    bundle_file.write_bytes(raw)
+
+    imported = runner.invoke(app, ["evidence", "import", str(bundle_file), "--path", str(root)])
+    assert imported.exit_code == 0, imported.output
+    evidence_path = root / ".rigorgraph" / "evidence.jsonl"
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    evidence["type"] = "proof"
+    evidence_path.write_text(json.dumps(evidence) + "\n", encoding="utf-8")
+
+    rejected = runner.invoke(app, ["evidence", "import", str(bundle_file), "--path", str(root)])
+    assert rejected.exit_code == 1
+    assert "bundle" in rejected.output.lower()
+
+    audit = runner.invoke(app, ["audit", str(root), "--json"])
+    assert audit.exit_code == 1
+    assert "RG_BUNDLE_RECORD_MISMATCH" in audit.output
+
+
 def test_import_bundle_rejects_conflict_and_non_draft_claim_without_partial_write(
     tmp_path,
 ) -> None:

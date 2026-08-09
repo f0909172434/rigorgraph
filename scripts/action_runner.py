@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 import uuid
 from pathlib import Path
@@ -26,6 +27,10 @@ def _resolve_report_path(root: Path, value: str) -> Path:
     relative = Path(value)
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError("report must remain inside the project directory")
+    if relative.parent != Path(".") or not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._-]*\.html", value, re.IGNORECASE
+    ):
+        raise ValueError("report must be a literal HTML filename without directories or patterns")
 
     root = root.resolve()
     destination = root / relative

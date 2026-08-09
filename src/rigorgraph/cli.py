@@ -15,7 +15,7 @@ from typer.core import TyperCommand, TyperGroup
 
 from rigorgraph import __version__
 from rigorgraph.audit import OUTCOME_STATUS, audit_project, should_fail
-from rigorgraph.bundles import BundleLoadError, bundle_metadata, load_bundle
+from rigorgraph.bundles import BundleLoadError, evidence_from_bundle, load_bundle
 from rigorgraph.demo import create_demo
 from rigorgraph.i18n import LanguageChoice, Translator, resolve_language
 from rigorgraph.integrity import claim_snapshot_sha256
@@ -346,13 +346,13 @@ def evidence_import(
         with project_lock(project_root):
             project = _load(project_root, translator)
             existing = next((item for item in project.evidence if item.id == record_id), None)
-            if existing is not None and (
-                existing.sha256 is None
-                or existing.sha256.lower() != digest.lower()
-                or existing.path != relative_artifact.as_posix()
-                or not isinstance(existing.metadata.get("bundle"), dict)
-                or existing.metadata["bundle"].get("format") != "rigorgraph-evidence-bundle"
-            ):
+            expected_evidence = evidence_from_bundle(
+                bundle,
+                record_id=record_id,
+                relative_path=relative_artifact.as_posix(),
+                digest=digest,
+            )
+            if existing is not None and existing != expected_evidence:
                 error_console.print(
                     translator.text("error.bundle_conflict", id=record_id), style="red"
                 )
@@ -375,17 +375,7 @@ def evidence_import(
                     )
                     raise typer.Exit(1)
 
-            evidence = existing or Evidence(
-                id=record_id,
-                type=bundle.evidence_type,
-                title=bundle.title,
-                producer=f"{bundle.producer.name}@{bundle.producer.version}",
-                path=relative_artifact.as_posix(),
-                scope=bundle.scope,
-                sha256=digest,
-                created_at=bundle.created_at,
-                metadata=bundle_metadata(bundle),
-            )
+            evidence = existing or expected_evidence
             artifact_path.parent.mkdir(parents=True, exist_ok=True)
             try:
                 artifact_path.parent.resolve().relative_to(project_root)

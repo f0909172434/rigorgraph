@@ -10,7 +10,18 @@ from scripts.action_runner import _resolve_report_path, _write_github_output
 
 @pytest.mark.parametrize(
     "value",
-    ["", "../outside.html", "/tmp/outside.html", "report.html\nsecond=value", "bad\rname"],
+    [
+        "",
+        "../outside.html",
+        "/tmp/outside.html",
+        "report.html\nsecond=value",
+        "bad\rname",
+        "*",
+        "report?.html",
+        "report[1].html",
+        "nested/report.html",
+        "report.txt",
+    ],
 )
 def test_report_path_rejects_unsafe_values(tmp_path: Path, value: str) -> None:
     with pytest.raises(ValueError):
@@ -29,6 +40,10 @@ def test_report_path_rejects_symlink_destination(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="symbolic link"):
         _resolve_report_path(tmp_path, "report.html")
     assert outside.read_text(encoding="utf-8") == "sentinel"
+
+
+def test_report_path_accepts_literal_html_basename(tmp_path: Path) -> None:
+    assert _resolve_report_path(tmp_path, "audit-result.html") == tmp_path / "audit-result.html"
 
 
 def test_github_output_uses_multiline_protocol() -> None:
