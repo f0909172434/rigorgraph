@@ -26,10 +26,10 @@ The screenshot is generated from `rigorgraph demo --scenario math`. The report k
 
 ## Quick start (three minutes)
 
-RigorGraph requires Python 3.11 or newer. Install the published 1.0.0 package; the product status remains public beta.
+RigorGraph requires Python 3.11 or newer. Install the published 1.0.1 package; the product status remains public beta.
 
 ```bash
-python -m pip install "rigorgraph==1.0.0"
+python -m pip install "rigorgraph==1.0.1"
 rigorgraph demo --scenario math --open
 ```
 
@@ -127,7 +127,7 @@ The repository includes four focused [Agent Skills](skills/):
 - `adversarial-verify`
 - `release-audit`
 
-It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.0.zip`; extract it, then install its isolated marketplace:
+It also ships a native `.codex-plugin/plugin.json`. The GitHub Release includes `rigorgraph-codex-plugin-1.0.1.zip`; extract it, then install its isolated marketplace:
 
 ```console
 codex plugin marketplace add PATH_TO_EXTRACTED_BUNDLE
@@ -146,13 +146,13 @@ steps:
   - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
     with:
       python-version: "3.12"
-  - uses: f0909172434/rigorgraph@v1.0.0
+  - uses: f0909172434/rigorgraph@v1.0.1
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. Use immutable `@v1.0.0` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
+The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. Use immutable `@v1.0.1` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
 
 ## Develop from source
 
