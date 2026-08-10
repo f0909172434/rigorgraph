@@ -1,5 +1,5 @@
-# RigorGraph v1.0.0
+# RigorGraph v1.0.1
 
-RigorGraph 把 AI 辅助研究转化为可审计的命题—证据图。首版包含本地 Python CLI、四个聚焦的 agent skills、Codex plugin manifest、GitHub Action、确定性证据门控与自包含离线报告。
+此修补版本强化本地项目和报告路径、以原子方式写入离线报告、规范化导入的 Evidence Bundle 记录、拒绝无效 Unicode scalar value，并将 Action 报告输出限制为明确的 HTML 文件名。
 
-界面支持英文、繁体中文、简体中文和日文。RigorGraph 不调用付费模型 API、不收集遥测，也不声称通过工作流验证就等于绝对真理。
+RigorGraph 仍是公开测试版。Evidence Bundle v1、稳定 audit codes、CLI JSON 与 Action 输入输出保持加法兼容；导入计算证据仍不会自动提升或验证命题。

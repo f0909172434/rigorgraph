@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 1.0.1
 
 - Add CodeQL, grouped Dependabot updates, full-SHA Action pinning, and a stable `ci-gate`.
 - Document the security, data, credential, and threat-model boundaries.
 - Clarify that RigorGraph remains a public-beta product while published 1.x interfaces follow additive compatibility.
 - Add an actual offline demo-report screenshot and clearer use, non-use, and interoperability guidance.
 - Derive release-tag validation from the package version instead of a hard-coded tag.
+- Reject linked or reparse-point configuration, state, and report destinations and write reports atomically.
+- Canonicalize imported Evidence Bundle records so stored evidence cannot retain a mismatched type or producer projection.
+- Reject invalid Unicode scalar values and constrain Action report outputs to literal HTML basenames.
 
 ## 1.0.0
 

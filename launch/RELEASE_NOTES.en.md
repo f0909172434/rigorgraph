@@ -1,5 +1,5 @@
-# RigorGraph v1.0.0
+# RigorGraph v1.0.1
 
-RigorGraph turns AI-assisted research into auditable claim-evidence graphs. The first release includes a local Python CLI, four focused agent skills, a Codex plugin manifest, a GitHub Action, deterministic evidence gates, and a self-contained offline report.
+This patch release hardens local project and report paths, atomically writes offline reports, canonicalizes imported Evidence Bundle records, rejects invalid Unicode scalar values, and constrains Action report outputs to literal HTML basenames.
 
-The interface supports English, Traditional Chinese, Simplified Chinese, and Japanese. RigorGraph does not call a paid model API, collect telemetry, or claim that workflow validation establishes absolute truth.
+RigorGraph remains public beta. Evidence Bundle v1, stable audit codes, CLI JSON, and Action inputs and outputs remain additively compatible. Imported computation evidence still never promotes or verifies a claim.

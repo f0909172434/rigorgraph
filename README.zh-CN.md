@@ -14,10 +14,10 @@ RigorGraph 是本地优先的 CLI、离线报告、GitHub Action 与技能包，
 
 ## 快速开始
 
-需要 Python 3.11 或更高版本，不需要 API 密钥。请安装已发布的 1.0.0 软件包；产品仍是公开测试版：
+需要 Python 3.11 或更高版本，不需要 API 密钥。请安装已发布的 1.0.1 软件包；产品仍是公开测试版：
 
 ```bash
-python -m pip install "rigorgraph==1.0.0"
+python -m pip install "rigorgraph==1.0.1"
 rigorgraph --lang zh-CN demo --scenario math --open
 ```
 

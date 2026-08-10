@@ -1,6 +1,6 @@
 # Codex plugin installation
 
-Download `rigorgraph-codex-plugin-1.0.0.zip` from the matching GitHub Release and extract it to a stable local directory. The bundle contains its own `rigorgraph-release` marketplace and does not edit the personal marketplace.
+Download `rigorgraph-codex-plugin-1.0.1.zip` from the matching GitHub Release and extract it to a stable local directory. The bundle contains its own `rigorgraph-release` marketplace and does not edit the personal marketplace.
 
 ```console
 codex plugin marketplace add PATH_TO_EXTRACTED_BUNDLE
@@ -8,7 +8,7 @@ codex plugin add rigorgraph@rigorgraph-release
 codex plugin list
 ```
 
-The installed plugin must report version `1.0.0` and expose `research-intake`, `capture-claim`, `adversarial-verify`, and `release-audit`. Start a new Codex task before invoking those skills because an existing task does not reload newly installed plugin content.
+The installed plugin must report version `1.0.1` and expose `research-intake`, `capture-claim`, `adversarial-verify`, and `release-audit`. Start a new Codex task before invoking those skills because an existing task does not reload newly installed plugin content.
 
 To remove this release marketplace:
 
