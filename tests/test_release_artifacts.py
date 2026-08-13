@@ -57,7 +57,7 @@ def test_release_versions_are_consistent() -> None:
         in workflow
     )
     assert (
-        "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+        "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
         in workflow
     )
     assert "78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e" not in workflow
