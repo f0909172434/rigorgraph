@@ -197,7 +197,7 @@ Start a new Codex task after installation so the four skills are discovered. See
 
 ## GitHub Action
 
-Pin third-party actions to full commit SHAs and pin RigorGraph to an immutable release tag:
+Pin third-party actions to full commit SHAs and pin RigorGraph to a protected semantic-version tag:
 
 ```yaml
 permissions:
@@ -215,7 +215,7 @@ steps:
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary, uploads the offline report even when the audit fails, and exposes `status` and `report` outputs. It does not post PR comments by default. Use immutable `@v1.0.1` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
+The action writes a GitHub Job Summary, uploads the offline report even when the audit fails, and exposes `status` and `report` outputs. It does not post PR comments by default. Use the protected version tag `@v1.0.1` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
 
 ## Develop from source
 
