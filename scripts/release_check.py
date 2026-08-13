@@ -21,7 +21,7 @@ PYPI_PUBLISH_ACTION = (
     "pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33"
 )
 ATTEST_BUILD_PROVENANCE_ACTION = (
-    "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+    "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
 )
 KNOWN_NON_COMMIT_ACTION_OBJECTS = {
     "78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e": "annotated actions/attest-build-provenance v4 tag",
