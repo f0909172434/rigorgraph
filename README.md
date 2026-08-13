@@ -16,6 +16,19 @@ RigorGraph is a public-beta, local-first CLI, offline report, GitHub Action, and
 
 > **Compatibility boundary:** The product remains in public beta. Published CLI flags and JSON output, schemas, stable audit codes, Evidence Bundle v1 fields, GitHub Action inputs and outputs, and plugin interfaces receive additive compatibility throughout 1.x. Breaking changes require a new major or schema version.
 
+## What RigorGraph does
+
+| Surface | What you get | What it does not claim |
+| --- | --- | --- |
+| Claim-evidence graph | Version-controlled JSONL records for claims, dependencies, evidence, and review history | A knowledge base that decides whether a statement is true |
+| Deterministic audit | Stable issue codes, JSON output, and configurable process exit behavior | A proof kernel, source-quality judge, or benchmark oracle |
+| Evidence integrity | Project-root path checks, SHA-256 byte checks, and accepted-review snapshot binding | Authorship, signer identity, remote-content preservation, or correctness |
+| Offline report | A read-only, self-contained HTML view with four interface languages | A hosted or collaborative editor |
+| Automation | The same audit through a Python CLI or composite GitHub Action | A model API, autonomous reviewer, or permission sandbox |
+| Agent workflow pack | Four skills for intake, capture, adversarial review, and release audit | Automatic promotion of AI output to `VERIFIED` |
+
+![RigorGraph claim-evidence workflow](assets/rigorgraph-flow.svg)
+
 ## See the result first
 
 The bundled math demo produces this self-contained report without an account, API key, or runtime network request:
@@ -50,6 +63,8 @@ rigorgraph --lang en quickstart my-research --name "My research project" --autho
 
 This creates one real `DRAFT` claim in the language you supplied and opens its report. The claim appears under Open gaps; RigorGraph does not invent evidence or promote it to `VERIFIED`.
 
+`quickstart` is intentionally a capture path: it does not move a draft into review. For a complete command-driven workflow, start with `rigorgraph init`, add a scoped `PROPOSED` claim and its evidence, obtain an independent review record, then audit. The [end-to-end workflow](docs/WORKFLOW.md) provides copyable JSON for every step and a deliberate tamper test.
+
 ```text
 my-research/
 ├── rigorgraph.yaml
@@ -76,6 +91,12 @@ RigorGraph is not a good fit when you need:
 - a secrets vault or a safe place to publish private research records;
 - a malware sandbox or permission boundary for hostile code and files.
 
+Three practical adoption paths are supported without changing the data format:
+
+1. **Local research notebook:** keep `rigorgraph.yaml`, `.rigorgraph/*.jsonl`, and non-sensitive evidence in version control; generate the report when needed.
+2. **Repository quality gate:** run `rigorgraph audit PROJECT --json` locally and use the GitHub Action to upload the same report in CI.
+3. **Human-plus-agent workflow:** use the bundled skills to structure records, but keep the evidence and independent acceptance decision reviewable by a person or another explicitly named reviewer.
+
 ## Commands
 
 | Command | Purpose |
@@ -92,6 +113,8 @@ RigorGraph is not a good fit when you need:
 
 Use `--lang en`, `--lang zh-TW`, `--lang zh-CN`, or `--lang ja` before a command. Without it, RigorGraph uses project configuration, then the operating-system locale, then English.
 
+`audit` accepts `--json` for machine-readable output and `--fail-on error|warning|never` to control its exit code. `never` is useful for observation but deliberately turns the command into a non-blocking check; the JSON `status` still reports `PASS` or `FAIL`. Project-level defaults live in `rigorgraph.yaml`.
+
 ## What the audit enforces
 
 - IDs are unique and links resolve.
@@ -105,6 +128,42 @@ Use `--lang en`, `--lang zh-TW`, `--lang zh-CN`, or `--lang ja` before a command
 - A verified synthesis depends only on currently verified claims.
 
 User-authored claims, formulas, quotations, and evidence remain in their original language. The interface translates labels only.
+
+Required evidence is claim-type specific:
+
+| Claim type | Required before an accepted claim can audit as `VERIFIED` |
+| --- | --- |
+| `formal` | `proof` |
+| `literature` | `source` with an exact remote locator |
+| `empirical` | both `dataset` and `computation` |
+| `benchmark` | both `dataset` and `benchmark_run` |
+| `synthesis` | at least one dependency, with every dependency currently `VERIFIED` |
+
+The audit checks that the accepted review explicitly listed the required evidence. It does not inspect whether a proof is logically complete, whether a source is reputable, or whether an experiment was scientifically well designed.
+
+## Technical design
+
+A project is ordinary text plus the evidence files it references:
+
+```text
+my-research/
+├── rigorgraph.yaml                 # schema version, name, UI language, failure threshold
+├── .rigorgraph/
+│   ├── claims.jsonl                # graph nodes, statuses, dependencies, evidence links
+│   ├── evidence.jsonl              # scoped local or remote evidence metadata
+│   ├── verifications.jsonl         # outcomes and bound claim-evidence snapshots
+│   └── artifacts/                  # exact imported Evidence Bundle bytes, when used
+├── evidence/                       # user-managed local evidence (example convention)
+└── rigorgraph-report.html          # generated; contains a readable copy of project data
+```
+
+Core project records use strict Pydantic models: unknown fields, invalid enum values, malformed identifiers, ambiguous evidence locations, and unsupported schema versions fail during load. Evidence Bundle v1 is intentionally additive, so future optional fields are preserved while required fields and the profile contract remain fixed.
+
+For local evidence, RigorGraph hashes the referenced file bytes. For an accepted review, it separately hashes canonical JSON containing the claim and all linked evidence records. Status and timestamps are excluded from that review snapshot; substantive claim or evidence metadata is not. A later byte change yields `RG_HASH_MISMATCH`, while a changed accepted packet yields `RG_SNAPSHOT_MISMATCH`.
+
+Existing-project record mutations (`claim add`, `evidence add`, `evidence import`, and `verify`) use a per-project lock; record and bundle writes replace completed temporary files atomically. The report generator embeds validated records and all four locale catalogs into the bundled viewer, escapes script-significant characters, and writes a single HTML file. The GitHub Action calls the same loader, audit engine, and report generator as the CLI.
+
+See the [technical architecture](docs/ARCHITECTURE.md) for model fields, lifecycle semantics, audit stages, hashing details, write behavior, and trust boundaries. Generated JSON Schemas are available in [`schemas/`](schemas/).
 
 ## Evidence bundles and interoperability
 
@@ -141,18 +200,22 @@ Start a new Codex task after installation so the four skills are discovered. See
 Pin third-party actions to full commit SHAs and pin RigorGraph to an immutable release tag:
 
 ```yaml
+permissions:
+  contents: read
+
 steps:
   - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
   - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
     with:
       python-version: "3.12"
   - uses: f0909172434/rigorgraph@v1.0.1
+    id: rigorgraph
     with:
       path: .
       fail-on: error
 ```
 
-The action writes a GitHub Job Summary and uploads the offline report. It does not post PR comments by default. Use immutable `@v1.0.1` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
+The action writes a GitHub Job Summary, uploads the offline report even when the audit fails, and exposes `status` and `report` outputs. It does not post PR comments by default. Use immutable `@v1.0.1` for reproducibility; the moving `@v1` tag follows the latest compatible 1.x release.
 
 ## Develop from source
 
@@ -174,8 +237,11 @@ python scripts/release_check.py --full
 - Local by default; no account, telemetry, remote database, or built-in paid model API.
 - The HTML report is self-contained and makes no runtime network requests, but it embeds project content and must be reviewed before sharing.
 - Deterministic gates can catch incomplete records and invalid promotion, but cannot guarantee that a human or AI proof is mathematically correct.
+- Reviewer independence is a recorded name comparison, not cryptographic identity verification.
+- Remote `http`, `https`, and `doi:` references are recorded with locators; audits do not fetch, archive, or authenticate them.
+- SHA-256 establishes byte equality with a recorded digest, not provenance, safe content, or truth.
 - Core results still need appropriate expert review.
 
-Read the [security policy](SECURITY.md), [threat model](docs/THREAT_MODEL.md), [contribution guide](CONTRIBUTING.md), [release policy](docs/RELEASE_POLICY.md), [public-beta policy](docs/BETA_POLICY.md), and [glossary](docs/GLOSSARY.md).
+Read the [workflow guide](docs/WORKFLOW.md), [technical architecture](docs/ARCHITECTURE.md), [security policy](SECURITY.md), [threat model](docs/THREAT_MODEL.md), [contribution guide](CONTRIBUTING.md), [release policy](docs/RELEASE_POLICY.md), [public-beta policy](docs/BETA_POLICY.md), and [glossary](docs/GLOSSARY.md).
 
 MIT License. Maintained by Wang Chih Kai.
