@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+      <title id="title">RigorGraph</title><desc id="desc">Claim-evidence graphs that keep open gaps visible.</desc>
+      <rect width="1200" height="360" fill="#efeee7"/><path d="M0 306h1200M676 0v360" stroke="#1a1914" stroke-opacity=".28"/>
+      <g font-family="Arial, Helvetica, sans-serif"><text x="54" y="61" fill="#3458df" font-size="15" font-weight="700" letter-spacing="3">RG / 01 / PUBLIC WORK</text>
+      <text x="54" y="166" fill="#1a1914" font-size="62" font-weight="750" letter-spacing="-3">RigorGraph</text>
+      <text x="54" y="216" fill="#1a1914" fill-opacity=".68" font-size="19">Claim-evidence graphs that keep open gaps visible.</text>
+      <text x="54" y="329" fill="#1a1914" fill-opacity=".62" font-size="13" letter-spacing="2">CLAIM  /  EVIDENCE  /  BOUNDARY</text></g>
+      <g fill="none" stroke="#1a1914" stroke-width="3" opacity=".9">
+          <path d="M760 70C850 70 848 178 935 178s88-85 181-85"/><path d="M730 188c98 0 102 93 205 93s102-70 190-70" stroke="#3458df"/>
+          <circle cx="760" cy="70" r="13" fill="#1a1914"/><rect x="916" y="160" width="38" height="38" rx="6" fill="#3458df" stroke="none"/><circle cx="1116" cy="93" r="13" fill="#1a1914"/>
+        </g>
+    </svg>
