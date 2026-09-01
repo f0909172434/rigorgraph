@@ -9,17 +9,17 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "cytoscape": "^3.33.1",
+    "cytoscape": "^3.34.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.31.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.0.5",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.1",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
+    "vite": "^8.2.2",
     "vite-plugin-singlefile": "^2.3.0"
   }
 }
