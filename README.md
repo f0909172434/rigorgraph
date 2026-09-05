@@ -41,6 +41,8 @@ The bundled math demo produces this self-contained report without an account, AP
 
 The screenshot is generated from `rigorgraph demo --scenario math`. The report keeps research text in its original language while its interface can switch between English, Traditional Chinese, Simplified Chinese, and Japanese.
 
+Open the [valid and deliberately invalid report walkthrough](docs/REPORT_WALKTHROUGH.md) to inspect actual exported examples before installing.
+
 ## Quick start (three minutes)
 
 RigorGraph requires Python 3.11 or newer. Install the published 1.0.1 package; the product status remains public beta.
