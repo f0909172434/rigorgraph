@@ -1,0 +1,81 @@
+{
+  "scope": "Tool integration; all claims remain DRAFT",
+  "pass": {
+    "result": "passed",
+    "tests": 1,
+    "sha256": "a6bff5e72c8fb9f1a766b95b428d184a56523a2e4f3441cf8f61557d3c077824"
+  },
+  "zero-tests": {
+    "result": "failed",
+    "tests": 0,
+    "sha256": "383aae3d1ad51c9dd655b07eddeaf219af1739faf624ced75d72da48ec90c5fb"
+  },
+  "audit": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 0,
+    "claims": 4,
+    "evidence": 9,
+    "verifications": 0,
+    "issues": []
+  },
+  "tampered_audit": {
+    "status": "FAIL",
+    "errors": 1,
+    "warnings": 0,
+    "claims": 4,
+    "evidence": 9,
+    "verifications": 0,
+    "issues": [
+      {
+        "code": "RG_HASH_MISMATCH",
+        "severity": "error",
+        "message_id": "issue.hash_mismatch",
+        "subject_id": "EV-pass",
+        "details": {
+          "path": ".rigorgraph/artifacts/EV-pass.json"
+        }
+      }
+    ]
+  },
+  "finite": {
+    "status": "PASS",
+    "witness_valid": true,
+    "prefix_length_checked": true,
+    "first_in_declared_order": "VERIFIED",
+    "admissible_count": "VERIFIED",
+    "metrics": {
+      "vertices": 4,
+      "edges": 4,
+      "degrees": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "minDegree": 2,
+      "maxDegree": 2,
+      "connected": true,
+      "triangles": 0,
+      "bipartite": true,
+      "diameter": 2,
+      "isCycle": true,
+      "allEven": true,
+      "perfectMatching": true,
+      "density": 0.6666666666666666
+    },
+    "scope": "Finite simple graphs; no general proof or producer authentication. Certificate ID is an informational label."
+  },
+  "claim_statuses": [
+    "DRAFT",
+    "DRAFT",
+    "DRAFT",
+    "DRAFT"
+  ],
+  "proofweave": "Published SHA256SUMS checked; Lean not rerun",
+  "source_revisions": {
+    "honest-ci": "175a3149315ac7efeb3add714481990945c5294b",
+    "finite-witness-webmcp": "55ed2deb7fbe1087d462fdbaec5a7878f901ca57",
+    "proofweave-math-lab": "a144bef4d5bf04035a2174e24963b864b74d2215"
+  }
+}

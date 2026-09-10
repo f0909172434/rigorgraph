@@ -251,3 +251,5 @@ python scripts/release_check.py --full
 Read the [workflow guide](docs/WORKFLOW.md), [technical architecture](docs/ARCHITECTURE.md), [security policy](SECURITY.md), [threat model](docs/THREAT_MODEL.md), [contribution guide](CONTRIBUTING.md), [release policy](docs/RELEASE_POLICY.md), [public-beta policy](docs/BETA_POLICY.md), and [glossary](docs/GLOSSARY.md).
 
 MIT License. Maintained by Wang Chih Kai.
+
+Runnable cross-tool example: [HonestCI pass/fail/tamper, Finite Witness replay and frozen ProofWeave handoff](examples/toolchain/README.md).
