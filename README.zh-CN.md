@@ -96,3 +96,5 @@ rigorgraph --lang zh-CN quickstart 我的研究 --name "我的研究项目" --au
 RigorGraph 1.0 可用 `rigorgraph evidence import BUNDLE.json --claim ID` 保存 HonestCI 等工具产生的版本化证据包；只允许链接 `DRAFT` 或 `PROPOSED`，且绝不自动验证命题。详细契约请参阅 [Evidence bundles](docs/EVIDENCE_BUNDLES.md)。
 
 源代码开发、GitHub Action 与贡献方式请参阅 [英文 README](README.md) 和 [CONTRIBUTING.md](CONTRIBUTING.md)；安全边界请参阅 [安全政策](SECURITY.md) 与 [威胁模型](docs/THREAT_MODEL.md)；发布条件请参阅 [发布政策](docs/RELEASE_POLICY.md)。MIT License。
+
+可执行串接示例：[HonestCI 成功／失败／篡改检查、Finite Witness 重放与冻结 ProofWeave 证据](examples/toolchain/README.md)。所有主张保留 DRAFT。

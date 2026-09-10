@@ -1,0 +1,38 @@
+name: Toolchain handoffs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  handoffs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: f0909172434/honest-ci
+          ref: 175a3149315ac7efeb3add714481990945c5294b
+          path: .toolchain/honest-ci
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: f0909172434/finite-witness-webmcp
+          ref: 55ed2deb7fbe1087d462fdbaec5a7878f901ca57
+          path: .toolchain/finite-witness
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: f0909172434/proofweave-math-lab
+          ref: a144bef4d5bf04035a2174e24963b864b74d2215
+          path: .toolchain/proofweave
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+      - run: python -m pip install -e .
+      - run: python examples/toolchain/run.py --honest-cli .toolchain/honest-ci/dist/cli/index.js --finite-root .toolchain/finite-witness --proofweave-root .toolchain/proofweave --output toolchain-output

@@ -96,3 +96,5 @@ Codex では `$skill-installer` に `f0909172434/rigorgraph` からのインス�
 RigorGraph 1.0 は `rigorgraph evidence import BUNDLE.json --claim ID` で HonestCI などのバージョン付き証拠バンドルを保存できます。リンク先は `DRAFT` または `PROPOSED` に限られ、主張を自動検証しません。契約の詳細は [Evidence bundles](docs/EVIDENCE_BUNDLES.md) を参照してください。
 
 ソース開発、GitHub Action、貢献方法は [英語 README](README.md) と [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。セキュリティ境界は [セキュリティポリシー](SECURITY.md) と [脅威モデル](docs/THREAT_MODEL.md)、リリース条件は [リリース方針](docs/RELEASE_POLICY.md) に記載しています。MIT License。
+
+実行可能な連携例：[HonestCI の成功・失敗・改変検出、Finite Witness の再検証、保存済み ProofWeave 証拠](examples/toolchain/README.md)。すべての主張は DRAFT のままです。
