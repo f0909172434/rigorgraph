@@ -58,10 +58,10 @@ rigorgraph --lang zh-CN quickstart 我的研究 --name "我的研究项目" --au
 | `rigorgraph quickstart` | 不伪造证据，创建首个 `DRAFT` 命题与可阅读离线报告 |
 | `rigorgraph init` | 初始化项目且不覆盖已有文件 |
 | `rigorgraph claim add CLAIM.json` | 添加 `DRAFT` 或 `PROPOSED` 命题 |
-| `rigorgraph evidence add EVIDENCE.json` | 添加具范围的证据；本地文件必须提供 SHA-256 |
+| `rigorgraph evidence add EVIDENCE.json` | 添加有明确范围的证据；本地文件必须提供 SHA-256 |
 | `rigorgraph verify CLAIM_ID --file REVIEW.json` | 记录独立的 `ACCEPT`、`REJECT` 或 `UNCERTAIN` 结果 |
 | `rigorgraph audit` | 检查结构、依赖图、证据类别、独立性与哈希 |
-| `rigorgraph report` | 产生可切换四语的离线 HTML 报告 |
+| `rigorgraph report` | 生成可切换四种语言的离线 HTML 报告 |
 | `rigorgraph demo` | 创建有效数学、有效 benchmark 或刻意无效的演示 |
 
 在命令前加上 `--lang en`、`--lang zh-TW`、`--lang zh-CN` 或 `--lang ja` 可以指定界面语言。没有指定时，会依序采用项目设置、操作系统语言，最后才是英文。
